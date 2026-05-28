@@ -1,0 +1,172 @@
+    <!-- HERO HEADER -->
+    <header class="hero">
+        <div class="container">
+            <div class="hero-tag">Junte-se a nós</div>
+            <h1 class="hero-title">Proposta de Associado</h1>
+            <p class="hero-subtitle">Preencha todos os campos do formulário para submeter a sua proposta oficial de adesão à Associação de Radioamadores Marienses.</p>
+        </div>
+    </header>
+
+    <!-- SECÇÃO: FORMULÁRIO -->
+    <section class="section">
+        <div class="container">
+            
+            <div class="grid-3" style="margin-bottom: 40px;">
+                <div class="card">
+                    <div class="card-icon">📋</div>
+                    <h3 class="card-title">Aprovação Diretiva</h3>
+                    <p class="card-text" style="font-size: 0.9rem;">Todas as propostas recebidas são analisadas e homologadas em reunião da Direção Administrativa da ARM.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">💳</div>
+                    <h3 class="card-title">Quota Anual: 25€</h3>
+                    <p class="card-text" style="font-size: 0.9rem;">O valor da quota anual de associado é de **25€**, revertendo inteiramente para o suporte tecnológico da associação.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔐</div>
+                    <h3 class="card-title">Dados Seguros</h3>
+                    <p class="card-text" style="font-size: 0.9rem;">Os seus dados estão protegidos nos termos do RGPD e serão utilizados exclusivamente para fins de gestão associativa.</p>
+                </div>
+            </div>
+
+            <!-- Formulário De Inscrição Customizado -->
+            <div class="card" style="padding: 40px;">
+                <h2 style="font-size: 1.65rem; margin-bottom: 30px; color: var(--accent-primary); border-bottom: 1px solid var(--border-glass); padding-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                    📝 Ficha de Inscrição de Sócio
+                </h2>
+
+                <form id="member-signup-form" style="display: flex; flex-direction: column; gap: 30px;">
+                    
+                    <!-- 1. DADOS PESSOAIS -->
+                    <div>
+                        <h4 style="color: var(--accent-secondary); font-size: 1.05rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-heading);">
+                            1. Identificação Pessoal
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
+                            
+                            <div style="display: flex; flex-direction: column; gap: 6px; grid-column: span 2;">
+                                <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">Nome Completo *</label>
+                                <input type="text" name="nome" required placeholder="Nome completo do candidato" style="padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem; width: 100%;">
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">Fotografia (Passe) *</label>
+                                <input type="file" id="signup-photo" accept="image/*" required style="padding: 8px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-secondary); font-size: 0.85rem;">
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">N.º Cartão de Cidadão *</label>
+                                <input type="text" name="cartao_cidadao" required placeholder="N.º BI ou CC" style="padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-mono); font-size: 0.95rem;">
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">N.º Contribuinte (NIF) *</label>
+                                <input type="text" name="nif" required placeholder="N.º Identificação Fiscal" style="padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-mono); font-size: 0.95rem;">
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">Sexo *</label>
+                                <select name="sexo" required style="padding: 10px 14px; background: rgba(17,24,39,0.9); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem;">
+                                    <option value="">Escolha...</option>
+                                    <option value="M">Masculino</option>
+                                    <option value="F">Feminino</option>
+                                    <option value="Outro">Outro</option>
+                                </select>
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">Data de Nascimento *</label>
+                                <input type="date" name="data_nascimento" required style="padding: 9px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem;">
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 6px; grid-column: span 2;">
+                                <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">IBAN (Para quotas/facturas) *</label>
+                                <input type="text" name="iban" required placeholder="PT50 0000 0000 0000 0000 0000 0" style="padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-mono); font-size: 0.95rem; width: 100%;">
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">Profissão *</label>
+                                <input type="text" name="profissao" required placeholder="Profissão actual" style="padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem;">
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">Habilitações Literárias *</label>
+                                <select name="habilitacoes" required style="padding: 10px 14px; background: rgba(17,24,39,0.9); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem;">
+                                    <option value="">Escolha...</option>
+                                    <option value="Basico">Ensino Básico</option>
+                                    <option value="Secundario">Ensino Secundário</option>
+                                    <option value="Licenciatura">Licenciatura</option>
+                                    <option value="Mestrado">Mestrado</option>
+                                    <option value="Doutoramento">Doutoramento</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. ENDEREÇO E CONTACTOS -->
+                    <div>
+                        <h4 style="color: var(--accent-secondary); font-size: 1.05rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-heading);">
+                            2. Localização & Contactos
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
+                            
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">País *</label>
+                                <input type="text" name="pais" value="Portugal" required style="padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem;">
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">Código Postal *</label>
+                                <input type="text" name="cod_postal" required placeholder="0000-000" style="padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-mono); font-size: 0.95rem;">
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 6px; grid-column: span 2;">
+                                <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">Morada *</label>
+                                <input type="text" name="morada" required placeholder="Rua, número, andar" style="padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem; width: 100%;">
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">Freguesia *</label>
+                                <input type="text" name="freguesia" required placeholder="Freguesia" style="padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem;">
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">Concelho *</label>
+                                <input type="text" name="concelho" required placeholder="Concelho" style="padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem;">
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">Distrito *</label>
+                                <input type="text" name="distrito" required placeholder="Distrito / Ilha" style="padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem;">
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">Telemóvel *</label>
+                                <input type="text" name="telemovel" required placeholder="N.º Telemóvel" style="padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-mono); font-size: 0.95rem;">
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">Telefone Fixo</label>
+                                <input type="text" name="telefone" placeholder="Opcional" style="padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-mono); font-size: 0.95rem;">
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 6px; grid-column: span 2;">
+                                <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">Endereço de E-mail *</label>
+                                <input type="email" name="email" required placeholder="exemplo@dominio.com" style="padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem; width: 100%;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BOTÃO DE SUBMISSÃO -->
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button type="submit" id="signup-submit-btn" class="btn btn-primary" style="padding: 14px 40px; font-size: 1rem; cursor: pointer; border-radius: 8px;">
+                            Enviar Proposta de Inscrição ✉️
+                        </button>
+                        <div id="signup-message" style="margin-top: 16px; font-size: 0.95rem; font-weight: 600; display: none;"></div>
+                    </div>
+
+                </form>
+            </div>
+            
+        </div>
+    </section>

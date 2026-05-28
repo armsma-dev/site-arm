@@ -1,0 +1,430 @@
+    <!-- HERO HEADER -->
+    <header class="hero">
+        <div class="container">
+            <div class="hero-tag" style="background: var(--accent-secondary-glow); border-color: var(--accent-secondary); color: var(--accent-secondary);">Área Direção</div>
+            <h1 class="hero-title">Painel de Administração</h1>
+            <p class="hero-subtitle">Gestão integrada de associados, controlo de quotas e contabilidade interna da ARM.</p>
+        </div>
+    </header>
+
+    <!-- SECÇÃO PRINCIPAL -->
+    <section class="section">
+        <div class="container">
+            
+            <!-- 1. LOGIN INTERFACE (MOSTRADO POR PADRÃO) -->
+            <div id="admin-login-card" class="card" style="max-width: 450px; margin: 0 auto; padding: 40px 30px; text-align: center;">
+                <div class="card-icon" style="color: var(--accent-primary);">🔒</div>
+                <h3 class="card-title" style="font-size: 1.5rem; margin-bottom: 8px;">Acesso Restrito</h3>
+                <p class="card-text" style="font-size: 0.9rem; margin-bottom: 24px;">Autentique-se com a sua conta Google da direção para aceder ao painel administrativo.</p>
+                
+                <!-- Contentor do Google Sign-In Oficial -->
+                <div id="google-signin-btn-container" style="display: flex; flex-direction: column; align-items: center; gap: 16px; margin: 24px 0 16px 0; min-height: 40px; justify-content: center;">
+                    <div id="google-signin-btn"></div>
+                </div>
+
+                <!-- Simulador de Login Google (Visível localmente/Mock Mode) -->
+                <div id="mock-google-login" style="display: none; background: rgba(0, 230, 118, 0.05); border: 1px dashed var(--accent-secondary); padding: 16px; border-radius: 8px; margin: 20px 0; text-align: center;">
+                    <span style="font-size: 0.85rem; color: var(--accent-secondary); font-weight: 600; display: block; margin-bottom: 8px;">🔧 Simulador Google Sign-In (Local)</span>
+                    <select id="mock-google-email" style="padding: 8px; width: 100%; border-radius: 4px; background: var(--bg-secondary); border: 1px solid var(--border-glass); color: var(--text-primary); margin-bottom: 10px; font-family: var(--font-body); font-size: 0.85rem;">
+                        <option value="geral@cu1arm.com">geral@cu1arm.com (Autorizado)</option>
+                        <option value="hugo.braga@nav.pt">hugo.braga@nav.pt (Autorizado)</option>
+                        <option value="invasor@gmail.com">invasor@gmail.com (Não Autorizado)</option>
+                    </select>
+                    <button type="button" id="btn-mock-google" class="btn btn-secondary" style="font-size: 0.8rem; width: 100%; padding: 8px 0; border-color: var(--accent-secondary); color: var(--accent-secondary); cursor: pointer;">
+                        Simular Login com Google 🚀
+                    </button>
+                </div>
+
+                <div id="google-login-error-msg" style="color: var(--accent-danger); font-size: 0.85rem; font-weight: 600; display: none; margin: 8px 0 16px 0;"></div>
+
+                <!-- Toggle para Password Legada -->
+                <button type="button" id="toggle-password-login" style="background: none; border: none; color: var(--text-secondary); font-size: 0.8rem; text-decoration: underline; cursor: pointer; margin-top: 12px; margin-bottom: 12px; outline: none;">
+                    ou entrar com palavra-passe
+                </button>
+
+                <!-- Formulário de Palavra-passe Tradicional (Escondido por padrão) -->
+                <div id="password-login-section" style="display: none; width: 100%; margin-top: 16px; border-top: 1px solid var(--border-glass); padding-top: 16px;">
+                    <form id="admin-login-form" style="display: flex; flex-direction: column; gap: 16px;">
+                        <div style="display: flex; flex-direction: column; gap: 6px; text-align: left;">
+                            <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">Palavra-passe de Fallback</label>
+                            <input type="password" id="admin-password-input" required placeholder="Insira a password" style="padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem; text-align: center; width: 100%;">
+                        </div>
+                        
+                        <button type="submit" id="admin-login-btn" class="btn btn-primary" style="padding: 12px 0; font-size: 0.95rem; cursor: pointer; width: 100%;">
+                            Entrar com Password 🔑
+                        </button>
+                        
+                        <div id="login-error-msg" style="color: var(--accent-danger); font-size: 0.85rem; font-weight: 600; display: none; margin-top: 8px;"></div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 2. DASHBOARD BOARD AREA (OCULTA ATÉ AUTENTICAR) -->
+            <div id="admin-dashboard-area" style="display: none; flex-direction: column; gap: 30px;">
+                
+                <!-- Barra Superior de Sessão -->
+                <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-glass); border: 1px solid var(--border-glass); padding: 16px 24px; border-radius: var(--border-radius); backdrop-filter: blur(8px);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.5rem;">👨‍💼</span>
+                        <div>
+                            <div style="font-weight: 700; color: var(--text-primary); font-size: 1rem;">Administrador ARM</div>
+                            <div style="font-size: 0.8rem; color: var(--accent-secondary); font-family: var(--font-mono);">Sessão Ativa</div>
+                        </div>
+                    </div>
+                    <button id="admin-logout-btn" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem; cursor: pointer;">
+                        Terminar Sessão 🚪
+                    </button>
+                </div>
+
+                <!-- CARTOES DE MÉTRICAS -->
+                <div class="grid-3" id="admin-metrics-grid">
+                    <div class="card" style="padding: 24px; display: flex; align-items: center; gap: 20px;">
+                        <div style="font-size: 2.2rem; background: var(--accent-glow); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--accent-primary);">👥</div>
+                        <div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Total de Sócios</div>
+                            <div style="font-size: 1.8rem; font-weight: 700; color: var(--text-primary);" id="metric-total-members">0</div>
+                        </div>
+                    </div>
+                    <div class="card" style="padding: 24px; display: flex; align-items: center; gap: 20px;">
+                        <div style="font-size: 2.2rem; background: rgba(0, 230, 118, 0.1); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--accent-secondary);">💰</div>
+                        <div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Saldo Geral</div>
+                            <div style="font-size: 1.8rem; font-weight: 700; color: var(--accent-secondary);" id="metric-total-balance">0.00€</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;" id="metric-sub-balances">🏛️ Banco: 0.00€ | 💵 Caixa: 0.00€</div>
+                        </div>
+                    </div>
+                    <div class="card" style="padding: 24px; display: flex; align-items: center; gap: 20px;">
+                        <div style="font-size: 2.2rem; background: rgba(255, 23, 68, 0.1); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--accent-danger);">⚠️</div>
+                        <div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Quotas Pendentes (<span id="metric-unpaid-quotas-year">2026</span>)</div>
+                            <div style="font-size: 1.8rem; font-weight: 700; color: var(--accent-danger);" id="metric-unpaid-quotas">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABS DE NAVEGAÇÃO INTERNA -->
+                <div style="display: flex; gap: 10px; border-bottom: 1px solid var(--border-glass); padding-bottom: 2px; overflow-x: auto; margin-top: 10px;">
+                    <button class="btn admin-tab-btn active" data-tab="tab-candidatos" style="font-size: 0.9rem; padding: 10px 20px; border-radius: 6px 6px 0 0; background: transparent; color: var(--text-secondary); border: none; cursor: pointer;">
+                        📥 Candidatos (<span id="count-candidatos">0</span>)
+                    </button>
+                    <button class="btn admin-tab-btn" data-tab="tab-socios" style="font-size: 0.9rem; padding: 10px 20px; border-radius: 6px 6px 0 0; background: transparent; color: var(--text-secondary); border: none; cursor: pointer;">
+                        👥 Lista de Sócios (<span id="count-socios">0</span>)
+                    </button>
+                    <button class="btn admin-tab-btn" data-tab="tab-quotas" style="font-size: 0.9rem; padding: 10px 20px; border-radius: 6px 6px 0 0; background: transparent; color: var(--text-secondary); border: none; cursor: pointer;">
+                        💳 Controlo de Quotas
+                    </button>
+                    <button class="btn admin-tab-btn" data-tab="tab-contabilidade" style="font-size: 0.9rem; padding: 10px 20px; border-radius: 6px 6px 0 0; background: transparent; color: var(--text-secondary); border: none; cursor: pointer;">
+                        📊 Contabilidade & Livro Caixa
+                    </button>
+                </div>
+
+                <!-- CONTEÚDO DAS TABS -->
+                <div id="admin-tabs-content" style="background: var(--bg-secondary); border: 1px solid var(--border-glass); border-radius: var(--border-radius); padding: 24px; box-shadow: var(--shadow-sm);">
+                    
+                    <!-- TAB 1: CANDIDATOS -->
+                    <div id="tab-candidatos" class="admin-tab-pane active-pane">
+                        <h3 style="font-size: 1.25rem; margin-bottom: 20px; color: var(--accent-primary);">Propostas de Adesão Pendentes</h3>
+                        <div style="overflow-x: auto; width: 100%;">
+                            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                                <thead>
+                                    <tr style="border-bottom: 1.5px solid var(--border-glass); color: var(--text-primary); font-weight: 700;">
+                                        <th style="padding: 12px 10px; width: 60px;">Foto</th>
+                                        <th style="padding: 12px 10px;">Nome / Contactos</th>
+                                        <th style="padding: 12px 10px; width: 130px;">Identificação</th>
+                                        <th style="padding: 12px 10px; width: 150px;">Localização</th>
+                                        <th style="padding: 12px 10px; width: 150px;">Data Submissão</th>
+                                        <th style="padding: 12px 10px; text-align: right; width: 180px;">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="candidatos-table-body" style="color: var(--text-secondary);">
+                                    <tr><td colspan="6" style="padding: 24px; text-align: center; color: var(--text-muted);">Sem propostas pendentes.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: LISTA DE SÓCIOS -->
+                    <div id="tab-socios" class="admin-tab-pane">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 16px;">
+                            <h3 style="font-size: 1.25rem; color: var(--accent-primary); margin: 0;">Ficheiro Geral de Associados</h3>
+                            <div>
+                                <button id="btn-trigger-csv-import" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem; cursor: pointer; border-color: var(--accent-secondary); color: var(--accent-secondary); outline: none;">
+                                    📥 Importar de CSV (QuotaGest)
+                                </button>
+                                <input type="file" id="csv-import-input" accept=".csv" style="display: none;">
+                            </div>
+                        </div>
+                        <div style="overflow-x: auto; width: 100%;">
+                            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                                <thead>
+                                    <tr style="border-bottom: 1.5px solid var(--border-glass); color: var(--text-primary); font-weight: 700;">
+                                        <th style="padding: 12px 10px; width: 60px;">Foto</th>
+                                        <th style="padding: 12px 10px; width: 90px;">N.º Sócio</th>
+                                        <th style="padding: 12px 10px;">Nome / E-mail</th>
+                                        <th style="padding: 12px 10px; width: 110px;">NIF</th>
+                                        <th style="padding: 12px 10px; width: 130px;">Telemóvel</th>
+                                        <th style="padding: 12px 10px; width: 100px;">Admissão</th>
+                                        <th style="padding: 12px 10px; text-align: center; width: 100px;">Estado</th>
+                                        <th style="padding: 12px 10px; text-align: right; width: 140px;">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="socios-table-body" style="color: var(--text-secondary);">
+                                    <tr><td colspan="7" style="padding: 24px; text-align: center; color: var(--text-muted);">A carregar dados...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: CONTROLO DE QUOTAS -->
+                    <div id="tab-quotas" class="admin-tab-pane">
+                        <h3 style="font-size: 1.25rem; margin-bottom: 20px; color: var(--accent-primary);">Registo Anual de Cobrança de Quotas (25.00€)</h3>
+                        <div style="overflow-x: auto; width: 100%;">
+                            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                                <thead>
+                                    <tr style="border-bottom: 1.5px solid var(--border-glass); color: var(--text-primary); font-weight: 700;">
+                                        <th style="padding: 12px 10px; width: 100px;">N.º Sócio</th>
+                                        <th style="padding: 12px 10px;">Nome Completo</th>
+                                        <th style="padding: 12px 10px; width: 80px; text-align: center;">Ano</th>
+                                        <th style="padding: 12px 10px; width: 120px;">Valor</th>
+                                        <th style="padding: 12px 10px; width: 140px; text-align: center;">Estado Quota</th>
+                                        <th style="padding: 12px 10px; text-align: right; width: 180px;">Recibo / Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="quotas-table-body" style="color: var(--text-secondary);">
+                                    <tr><td colspan="6" style="padding: 24px; text-align: center; color: var(--text-muted);">A carregar dados...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 4: CONTABILIDADE -->
+                    <div id="tab-contabilidade" class="admin-tab-pane">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 16px;">
+                            <h3 style="font-size: 1.25rem; color: var(--accent-primary); margin: 0;">Livro Geral de Caixa e Fluxo Financeiro</h3>
+                            
+                            <div style="display: flex; gap: 12px; align-items: center;">
+                                <!-- Botão Relatório Anual -->
+                                <button id="btn-generate-annual-report" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem; cursor: pointer; border-color: var(--accent-primary); color: var(--accent-primary); outline: none;">
+                                    📄 Gerar Relatório Anual
+                                </button>
+                                <!-- Botão Lançamento -->
+                                <button id="btn-toggle-transaction-form" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.85rem; cursor: pointer;">
+                                    + Registar Receita / Despesa
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Form de Novo Lançamento (Colapsado por padrão) -->
+                        <div id="transaction-form-panel" style="display: none; background: rgba(0,0,0,0.15); border: 1px solid var(--border-glass); padding: 20px; border-radius: 8px; margin-bottom: 24px;">
+                            <h4 style="color: var(--text-primary); margin-bottom: 16px; font-size: 1rem;">Novo Lançamento Contabilístico</h4>
+                            <form id="accounting-transaction-form" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: flex-end;">
+                                <div style="display: flex; flex-direction: column; gap: 6px;">
+                                    <label style="font-size: 0.8rem; color: var(--text-secondary);">Tipo Movimento</label>
+                                    <select id="trans-tipo" required style="padding: 8px 12px; background: var(--bg-secondary); border: 1px solid var(--border-glass); border-radius: 4px; color: var(--text-primary);">
+                                        <option value="receita">Receita (Entrada)</option>
+                                        <option value="despesa">Despesa (Saída)</option>
+                                    </select>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 6px;">
+                                    <label style="font-size: 0.8rem; color: var(--text-secondary);">Meio / Conta</label>
+                                    <select id="trans-meio" required style="padding: 8px 12px; background: var(--bg-secondary); border: 1px solid var(--border-glass); border-radius: 4px; color: var(--text-primary);">
+                                        <option value="banco">Banco</option>
+                                        <option value="caixa">Caixa (Dinheiro)</option>
+                                    </select>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 6px; grid-column: span 2;">
+                                    <label style="font-size: 0.8rem; color: var(--text-secondary);">Descrição detalhada</label>
+                                    <input type="text" id="trans-descricao" required placeholder="Ex: Compra de Cabos coaxiais" style="padding: 8px 12px; background: var(--bg-secondary); border: 1px solid var(--border-glass); border-radius: 4px; color: var(--text-primary); width: 100%;">
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 6px;">
+                                    <label style="font-size: 0.8rem; color: var(--text-secondary);">Montante (€)</label>
+                                    <input type="number" step="0.01" id="trans-valor" required placeholder="0.00" style="padding: 8px 12px; background: var(--bg-secondary); border: 1px solid var(--border-glass); border-radius: 4px; color: var(--text-primary); font-family: var(--font-mono);">
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 6px;">
+                                    <label style="font-size: 0.8rem; color: var(--text-secondary);">Categoria</label>
+                                    <select id="trans-categoria" required style="padding: 8px 12px; background: var(--bg-secondary); border: 1px solid var(--border-glass); border-radius: 4px; color: var(--text-primary);">
+                                        <option value="Quotas">Quotas</option>
+                                        <option value="Equipamento">Equipamento Rádio</option>
+                                        <option value="Infraestrutura">Infraestrutura Pico Alto</option>
+                                        <option value="Instalações">Gastos Sede (Luz/Água)</option>
+                                        <option value="Subsídios">Subsídios / Apoios</option>
+                                        <option value="Donativo">Doações</option>
+                                        <option value="Outros">Outros Diversos</option>
+                                    </select>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 6px;">
+                                    <label style="font-size: 0.8rem; color: var(--text-secondary);">Data</label>
+                                    <input type="date" id="trans-data" required style="padding: 7px 12px; background: var(--bg-secondary); border: 1px solid var(--border-glass); border-radius: 4px; color: var(--text-primary);">
+                                </div>
+                                <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                                    <button type="button" id="btn-cancel-transaction" class="btn btn-secondary" style="padding: 9px 16px; font-size: 0.85rem; cursor: pointer;">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary" style="padding: 9px 20px; font-size: 0.85rem; cursor: pointer;">Registar</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Tabela Movimentos -->
+                        <div style="overflow-x: auto; width: 100%;">
+                            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                                <thead>
+                                    <tr style="border-bottom: 1.5px solid var(--border-glass); color: var(--text-primary); font-weight: 700;">
+                                        <th style="padding: 12px 10px; width: 100px;">Data</th>
+                                        <th style="padding: 12px 10px; width: 110px;">Movimento</th>
+                                        <th style="padding: 12px 10px; width: 140px;">Categoria</th>
+                                        <th style="padding: 12px 10px;">Descrição</th>
+                                        <th style="padding: 12px 10px; text-align: right; width: 120px;">Valor</th>
+                                        <th style="padding: 12px 10px; text-align: right; width: 100px;">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="contabilidade-table-body" style="color: var(--text-secondary);">
+                                    <tr><td colspan="5" style="padding: 24px; text-align: center; color: var(--text-muted);">A carregar dados...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- MODAL DE EDIÇÃO DE SÓCIO -->
+    <div id="edit-member-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px);">
+        <div class="card" style="width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; padding: 30px; display: flex; flex-direction: column; gap: 20px; box-shadow: var(--shadow-lg); background: var(--bg-primary); border: 1px solid var(--border-glass);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-glass); padding-bottom: 12px;">
+                <h3 style="color: var(--accent-primary); margin: 0; font-size: 1.25rem; font-weight: 700;">Editar Ficha de Sócio</h3>
+                <button id="btn-close-edit-modal" style="background: none; border: none; color: var(--text-secondary); font-size: 1.8rem; cursor: pointer; line-height: 1;">&times;</button>
+            </div>
+            
+            <form id="edit-member-form" style="display: flex; flex-direction: column; gap: 16px;">
+                <input type="hidden" id="edit-socio-id">
+                
+                <div class="grid-2" style="gap: 16px;">
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Número de Sócio</label>
+                        <input type="number" id="edit-socio-numero" required style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem;">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Estado</label>
+                        <select id="edit-socio-estado" required style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem;">
+                            <option value="Ativo">Ativo</option>
+                            <option value="Inativo">Inativo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Nome Completo</label>
+                    <input type="text" id="edit-socio-nome" required style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem; width: 100%;">
+                </div>
+
+                <div class="grid-2" style="gap: 16px;">
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">E-mail</label>
+                        <input type="email" id="edit-socio-email" required style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem;">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Telemóvel</label>
+                        <input type="text" id="edit-socio-telemovel" required style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem;">
+                    </div>
+                </div>
+
+                <div class="grid-2" style="gap: 16px;">
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">NIF</label>
+                        <input type="text" id="edit-socio-nif" required style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem;">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Cartão de Cidadão</label>
+                        <input type="text" id="edit-socio-cc" required style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem;">
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Morada Completa</label>
+                    <input type="text" id="edit-socio-morada" required style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem; width: 100%;">
+                </div>
+
+                <div class="grid-2" style="gap: 16px;">
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">IBAN</label>
+                        <input type="text" id="edit-socio-iban" style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem;">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Data de Admissão</label>
+                        <input type="date" id="edit-socio-admissao" required style="padding: 9px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem;">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 10px;">
+                                    <button type="button" id="btn-cancel-edit" class="btn btn-secondary" style="padding: 10px 20px; font-size: 0.9rem; cursor: pointer;">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary" style="padding: 10px 24px; font-size: 0.9rem; cursor: pointer;">Guardar Alterações 💾</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- MODAL DE EDIÇÃO DE TRANSAÇÃO -->
+                    <div id="edit-transaction-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px);">
+                        <div class="card" style="width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; padding: 30px; display: flex; flex-direction: column; gap: 20px; box-shadow: var(--shadow-lg); background: var(--bg-primary); border: 1px solid var(--border-glass);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-glass); padding-bottom: 12px;">
+                                <h3 style="color: var(--accent-primary); margin: 0; font-size: 1.25rem; font-weight: 700;">Editar Lançamento</h3>
+                                <button id="btn-close-edit-trans-modal" style="background: none; border: none; color: var(--text-secondary); font-size: 1.8rem; cursor: pointer; line-height: 1;">&times;</button>
+                            </div>
+                            
+                            <form id="edit-transaction-form" style="display: flex; flex-direction: column; gap: 16px;">
+                                <input type="hidden" id="edit-trans-id">
+                                
+                                <div style="display: flex; flex-direction: column; gap: 6px;">
+                                    <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Tipo Movimento</label>
+                                    <select id="edit-trans-tipo" required style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem;">
+                                        <option value="receita">Receita (Entrada)</option>
+                                        <option value="despesa">Despesa (Saída)</option>
+                                    </select>
+                                </div>
+
+                                <div style="display: flex; flex-direction: column; gap: 6px;">
+                                    <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Meio / Conta</label>
+                                    <select id="edit-trans-meio" required style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem;">
+                                        <option value="banco">Banco</option>
+                                        <option value="caixa">Caixa (Dinheiro)</option>
+                                    </select>
+                                </div>
+
+                                <div style="display: flex; flex-direction: column; gap: 6px;">
+                                    <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Descrição Detalhada</label>
+                                    <input type="text" id="edit-trans-descricao" required style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem; width: 100%;">
+                                </div>
+
+                                <div class="grid-2" style="gap: 16px;">
+                                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                                        <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Montante (€)</label>
+                                        <input type="number" step="0.01" id="edit-trans-valor" required style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-mono); font-size: 0.95rem;">
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                                        <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Categoria</label>
+                                        <select id="edit-trans-categoria" required style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem;">
+                                            <option value="Quotas">Quotas</option>
+                                            <option value="Equipamento">Equipamento Rádio</option>
+                                            <option value="Infraestrutura">Infraestrutura Pico Alto</option>
+                                            <option value="Instalações">Gastos Sede (Luz/Água)</option>
+                                            <option value="Subsídios">Subsídios / Apoios</option>
+                                            <option value="Donativo">Doações</option>
+                                            <option value="Outros">Outros Diversos</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; flex-direction: column; gap: 6px;">
+                                    <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Data</label>
+                                    <input type="date" id="edit-trans-data" required style="padding: 9px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem;">
+                                </div>
+
+                                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 10px;">
+                                    <button type="button" id="btn-cancel-edit-trans" class="btn btn-secondary" style="padding: 10px 20px; font-size: 0.9rem; cursor: pointer;">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary" style="padding: 10px 24px; font-size: 0.9rem; cursor: pointer;">Guardar Alterações 💾</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>

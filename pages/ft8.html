@@ -1,0 +1,66 @@
+    <!-- HERO HEADER -->
+    <header class="hero">
+        <div class="container">
+            <div class="hero-tag">Modos Digitais</div>
+            <h1 class="hero-title">Guia Completo de FT8</h1>
+            <p class="hero-subtitle">Conheça o modo digital revolucionário de sinal fraco que transformou o radioamadorismo.</p>
+        </div>
+    </header>
+
+    <!-- ARTIGO -->
+    <section class="section">
+        <div class="container">
+            
+            <div class="grid-2" style="align-items: flex-start; margin-bottom: 40px;">
+                <!-- O que é o FT8 -->
+                <div class="card" style="min-height: 380px;">
+                    <div class="card-icon">💻</div>
+                    <h3 class="card-title">O que é o FT8?</h3>
+                    <p class="card-text" style="font-size: 0.95rem; line-height: 1.7;">
+                        O **FT8** é o mais recente modo digital de sinal fraco para rádio amador, implementado pelo conceituado software **WSJT-X** e JTDX no início de 2017. Recebeu o nome dos seus brilhantes criadores, **Steven Franke (K9AN)** e **Joe Taylor (K1JT)**.
+                    </p>
+                    <p class="card-text" style="font-size: 0.95rem; line-height: 1.7;">
+                        Originalmente desenhado para melhorar os modos de propagação esotéricos (como dispersão de meteoros de alta velocidade e Terra-Lua-Terra), o FT8 opera em ciclos rápidos de Transmissão/Receção de **15 segundos**, completando um QSO em cerca de 1 minuto sob condições de sinal incrivelmente fracas.
+                    </p>
+                </div>
+                
+                <!-- Requisitos de Operação -->
+                <div class="card" style="min-height: 380px;">
+                    <div class="card-icon">⚡</div>
+                    <h3 class="card-title">Requisitos Técnicos</h3>
+                    <p class="card-text" style="font-size: 0.95rem; line-height: 1.7;">
+                        Como todos os modos digitais modernos baseados em placa de som, para começar a transmitir em FT8 precisará de:
+                    </p>
+                    <ul style="color: var(--text-secondary); margin-left: 20px; font-size: 0.9rem; display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
+                        <li>Um **computador** com software WSJT-X ou JTDX instalado.</li>
+                        <li>Um **transcetor de rádio** ligado a uma antena ajustada.</li>
+                        <li>Um **interface dedicado** ou simples cabos de áudio de entrada/saída de microfone + cabo CAT para sincronização de frequências.</li>
+                        <li>Relógio do computador perfeitamente sincronizado por rede (via protocolo NTP).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Como Funciona Detalhado -->
+            <div class="card" style="margin-bottom: 40px;">
+                <h3 style="font-size: 1.35rem; margin-bottom: 20px; color: var(--accent-primary); border-bottom: 1px solid var(--border-glass); padding-bottom: 10px;">Como funciona a Transmissão?</h3>
+                <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px;">
+                    O software de modos digitais codifica as mensagens curtas de QSO em sinais sonoros modulados. Estes são transmitidos pelo rádio numa frequência USB fixa em cada banda (como **14.074 MHz** na banda dos 20 metros).
+                </p>
+                <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px;">
+                    Na outra ponta, os operadores recebem o som e o software descodifica instantaneamente, mostrando as chamadas e mensagens no ecrã. O protocolo segue uma sequência lógica predefinida (CQ, indicativo, reportes de sinal e 73 finais) assegurando contactos automáticos e eficazes.
+                </p>
+                
+                <div style="background: rgba(0, 0, 0, 0.15); padding: 20px; border-radius: var(--border-radius); border: 1px solid var(--border-glass); text-align: center;">
+                    <h4 style="color: var(--accent-secondary); margin-bottom: 8px;">Quem pode operar o FT8 em Portugal?</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-primary);">
+                        A operação em modos digitais segue rigorosamente os limites de frequências e potências impostos pela licença de cada amador. Em Portugal, a transmissão de dados nestas subfaixas está autorizada para amadores de **Categoria A, 1 e B**.
+                    </p>
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <a href="#/" class="btn btn-secondary">Voltar ao Painel Geral</a>
+            </div>
+
+        </div>
+    </section>

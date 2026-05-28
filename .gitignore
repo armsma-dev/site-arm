@@ -1,0 +1,9 @@
+# Ignore raw member data and database seeds for security and GDPR compliance
+*.csv
+*.sql
+
+# Ignore backups and old folders
+*.bak
+backup_old_site/
+.DS_Store
+Thumbs.db

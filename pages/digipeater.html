@@ -1,0 +1,82 @@
+    <!-- HERO HEADER -->
+    <header class="hero">
+        <div class="container">
+            <div class="hero-tag">Digipeater APRS</div>
+            <h1 class="hero-title">CQ1PPA — APRS</h1>
+            <p class="hero-subtitle">Estação repetidora de pacotes de dados de posicionamento APRS no cume do Pico Alto.</p>
+        </div>
+    </header>
+
+    <!-- SECÇÃO: DADOS TÉCNICOS -->
+    <section class="section">
+        <div class="container">
+            
+            <div class="grid-2">
+                <!-- Cartão 1: Detalhes Geográficos -->
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div class="card-icon">🗺️</div>
+                        <h3 class="card-title">Localização da Estação</h3>
+                        <p class="card-text">O digipeater APRS localiza-se na infraestrutura partilhada de rádio no Pico Alto, capturando transmissões marítimas e terrestres.</p>
+                        
+                        <div style="background: rgba(0, 0, 0, 0.15); padding: 16px; border-radius: 8px; border: 1px solid var(--border-glass); display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span style="color: var(--text-secondary);">Altitude / Cume:</span>
+                                <span style="font-family: var(--font-mono); color: var(--accent-primary); font-weight: 600;">Pico Alto (HM76KX)</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span style="color: var(--text-secondary);">Latitude (N):</span>
+                                <span style="font-family: var(--font-mono); color: var(--text-primary);">36º 58' 58,312"</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span style="color: var(--text-secondary);">Longitude (W):</span>
+                                <span style="font-family: var(--font-mono); color: var(--text-primary);">25º 05' 26,677"</span>
+                            </div>
+                        </div>
+                    </div>
+                    <img src="assets/images/digi.png" alt="APRS Digipeater" style="max-height: 80px; align-self: flex-end; filter: drop-shadow(0 0 4px var(--accent-glow));">
+                </div>
+                
+                <!-- Cartão 2: Frequências e Especificações -->
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div class="card-icon">⚡</div>
+                        <h3 class="card-title">Características do Digipeater</h3>
+                        <p class="card-text">Parâmetros técnicos operacionais para configuração de pacotes digitais na rede de geolocalização APRS.</p>
+                        
+                        <div style="background: rgba(0, 0, 0, 0.15); padding: 16px; border-radius: 8px; border: 1px solid var(--border-glass); display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span style="color: var(--text-secondary);">Frequência de Trabalho (RX/TX):</span>
+                                <span style="font-family: var(--font-mono); color: var(--accent-primary); font-weight: 600;">144.8000 MHz (Simplex)</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span style="color: var(--text-secondary);">Tom de Proteção (CTCSS):</span>
+                                <span style="font-family: var(--font-mono); color: var(--text-primary);">Sem tom (Modulação Aberta)</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span style="color: var(--text-secondary);">Desvio / Shift:</span>
+                                <span style="font-family: var(--font-mono); color: var(--text-primary);">0 MHz (Direto)</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span style="color: var(--text-secondary);">Potência Radiada (PAR):</span>
+                                <span style="font-family: var(--font-mono); color: var(--text-primary);">25.0W</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span style="color: var(--text-secondary);">Finalidade:</span>
+                                <span style="font-family: var(--font-mono); color: var(--accent-secondary); font-weight: 600;">Repetidor de Pacotes APRS e Telemetria</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="https://aprs.fi/info/a/CQ1PPA" target="_blank" class="btn btn-primary" style="text-align: center;">Visualizar Tráfego APRS no aprs.fi ↗</a>
+                </div>
+            </div>
+
+            <!-- Mapa Interativo do Pico Alto e Enlaces -->
+            <div class="card" style="margin-top: 30px; padding: 20px;">
+                <h3 style="font-size: 1.35rem; margin-bottom: 16px; color: var(--accent-primary); border-bottom: 1px solid var(--border-glass); padding-bottom: 10px;">Enquadramento Geográfico & Enlace de Rádio</h3>
+                <div id="map-repeater" style="height: 350px; border-radius: 8px; border: 1px solid var(--border-glass); overflow: hidden;"></div>
+            </div>
+            
+        </div>
+    </section>

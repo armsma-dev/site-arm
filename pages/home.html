@@ -1,0 +1,243 @@
+    <!-- HERO SECTION (Painel de Boas-Vindas) -->
+    <header class="hero">
+        <div class="container">
+            <div class="hero-tag">CQ Santa Maria Açores</div>
+            <h1 class="hero-title">Associação de Radioamadores Marienses</h1>
+            <p class="hero-subtitle">Desde 1995 a conectar a ilha de Santa Maria ao mundo através das ondas de rádio.</p>
+            <div style="display: flex; gap: 16px; justify-content: center;">
+                <a href="#/rede-arm" class="btn btn-primary" onclick="document.getElementById('rede-arm')?.scrollIntoView({behavior:'smooth'}); return false;">Ver Rede de Repetidores</a>
+                <a href="#/sobre" class="btn btn-secondary">Sobre Nós</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- SECÇÃO: REDE ARM INTERATIVA -->
+    <section class="section" id="rede-arm" style="background-color: var(--bg-secondary);">
+        <div class="container">
+            <div class="section-title-wrap">
+                <h2 class="section-title">Rede de Telecomunicações ARM</h2>
+                <p class="section-subtitle">Selecione uma estação para monitorizar em tempo real as frequências e telemetria.</p>
+            </div>
+            
+            <!-- Dashboard Interativo -->
+            <div class="repeater-dashboard">
+                <!-- Seletor de Cartões -->
+                <div class="repeater-selector">
+                    <button class="repeater-btn-card active" data-repeater="cq1vpa">
+                        <div class="repeater-badge-avatar">V</div>
+                        <div class="repeater-btn-meta">
+                            <div class="repeater-btn-call">CQ1VPA</div>
+                            <div class="repeater-btn-type">Analógico / AllStar Link Node</div>
+                        </div>
+                    </button>
+                    
+                    <button class="repeater-btn-card" data-repeater="cq1upa">
+                        <div class="repeater-badge-avatar">U</div>
+                        <div class="repeater-btn-meta">
+                            <div class="repeater-btn-call">CQ1UPA</div>
+                            <div class="repeater-btn-type">DMR / YSF Digital</div>
+                        </div>
+                    </button>
+                    
+                    <button class="repeater-btn-card" data-repeater="cq1ppa">
+                        <div class="repeater-badge-avatar">P</div>
+                        <div class="repeater-btn-meta">
+                            <div class="repeater-btn-call">CQ1PPA</div>
+                            <div class="repeater-btn-type">Digipeater APRS</div>
+                        </div>
+                    </button>
+                </div>
+                
+                <!-- Display de Telemetria Dinâmico -->
+                <div class="repeater-display">
+                    <div>
+                        <div class="repeater-display-header">
+                            <div>
+                                <h3 id="disp-callsign" style="font-size: 2rem; color: var(--accent-primary); font-family: var(--font-heading);">CQ1VPA</h3>
+                                <span id="disp-type" style="font-size: 0.85rem; font-family: var(--font-mono); color: var(--text-secondary);">ANALÓGICO / ALLSTAR LINK</span>
+                            </div>
+                            <div class="repeater-status-indicator">
+                                <span class="repeater-status-dot"></span>
+                                <span id="disp-status">Estação Ativa</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Dados da Estação -->
+                        <div class="repeater-specs-grid">
+                            <div class="spec-item-box">
+                                <div class="spec-label">Frequência Receção (RX)</div>
+                                <div class="spec-value" id="disp-freq-rx">145.600 MHz</div>
+                            </div>
+                            <div class="spec-item-box">
+                                <div class="spec-label">Frequência Emissão (TX)</div>
+                                <div class="spec-value" id="disp-freq-tx">145.000 MHz (Shift: -600 kHz)</div>
+                            </div>
+                            <div class="spec-item-box">
+                                <div class="spec-label">Tom de Proteção</div>
+                                <div class="spec-value" id="disp-protection">CTCSS: 88.5 Hz</div>
+                            </div>
+                            <div class="spec-item-box">
+                                <div class="spec-label">Localização da Estação</div>
+                                <div class="spec-value" id="disp-location">Pico Alto - HM76KX</div>
+                            </div>
+                            <div class="spec-item-box">
+                                <div class="spec-label">Tipo de Estação</div>
+                                <div class="spec-value" id="disp-station-type">Repetidora Analógica (RV48)</div>
+                            </div>
+                            <div class="spec-item-box">
+                                <div class="spec-label">Potência Radiada (PAR)</div>
+                                <div class="spec-value" id="disp-power">25.0 W (PAR)</div>
+                            </div>
+                            <div class="spec-item-box" style="grid-column: span 2;">
+                                <div class="spec-label">Detalhes da Rede / Timeslots</div>
+                                <div class="spec-value" id="disp-details" style="font-size: 0.95rem;">AllStar Link Node: 568290</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="repeater-display-actions">
+                        <a href="#/rep-analogicos" class="btn btn-primary" id="disp-action-btn" style="flex: 1;">Ver Detalhes Completos</a>
+                        <div class="radio-wave-animator">
+                            <div class="radio-wave-bar"></div>
+                            <div class="radio-wave-bar"></div>
+                            <div class="radio-wave-bar"></div>
+                            <div class="radio-wave-bar"></div>
+                            <div class="radio-wave-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECÇÃO: DESTAQUES (Highlights) -->
+    <section class="section">
+        <div class="container">
+            <div class="section-title-wrap">
+                <h2 class="section-title">Destaques e Atividades</h2>
+                <p class="section-subtitle">Últimas atualizações tecnológicas e projetos inovadores da nossa equipa.</p>
+            </div>
+            
+            <div class="grid-3">
+                <!-- Cartão AllStar Link -->
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div class="card-icon">🌐</div>
+                        <h3 class="card-title">Ligação AllStar Link no RV48</h3>
+                        <p class="card-text">O repetidor VHF de Santa Maria CQ1VPA (RV48) está oficialmente interligado à rede mundial AllStar Link. Esta tecnologia une os repetidores VHF das ilhas de São Miguel e Flores para comunicações contínuas.</p>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
+                        <a href="#/allstar" class="btn btn-secondary">Saiba mais</a>
+                        <img src="assets/images/allstarlinklogo.png" alt="AllStar Link" style="height: 40px; border-radius: 4px;">
+                    </div>
+                </div>
+                
+                <!-- Cartão Flightradar24 -->
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div class="card-icon">✈️</div>
+                        <h3 class="card-title">Fornecedor de Dados Flightradar24</h3>
+                        <p class="card-text">A ARM contribui para a segurança da aviação civil sendo um fornecedor oficial de telemetria ADS-B para a rede Flightradar24. Instalado no Pico Alto, capturamos dados aéreos cruciais no centro do Atlântico.</p>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
+                        <a href="#/fradar24" class="btn btn-secondary">Saiba mais</a>
+                        <img src="assets/images/fr24-logo-twitter.png" alt="Flightradar24" style="height: 40px; border-radius: 4px;">
+                    </div>
+                </div>
+
+                <!-- Cartão DMR BrandMeister -->
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div class="card-icon">📟</div>
+                        <h3 class="card-title">Repetidor UHF convertido para DMR</h3>
+                        <p class="card-text">O nosso repetidor UHF CQ1UPA foi migrado com sucesso para o protocolo digital DMR e ligado à rede internacional BrandMeister, garantindo transmissões digitais claras com voz cristalina.</p>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
+                        <a href="#/repetidor-convertido" class="btn btn-secondary">Saiba mais</a>
+                        <img src="assets/images/bm.png" alt="BrandMeister" style="height: 40px; border-radius: 4px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECÇÃO: MONITOR DE PROPAGAÇÃO SOLAR E METEOROLOGIA -->
+    <section class="section" style="background-color: var(--bg-secondary);">
+        <div class="container">
+            <div class="section-title-wrap">
+                <h2 class="section-title">Propagação HF/VHF e Meteorologia</h2>
+                <p class="section-subtitle">Dados em tempo real das condições espaciais solar e do estado do tempo na ilha.</p>
+            </div>
+            
+            <div class="grid-2">
+                <!-- Cartão Propagação Solar -->
+                <div class="widget-glow-card">
+                    <h3 style="margin-bottom: 20px; color: var(--accent-primary);">Telemetria Solar-Terrestre</h3>
+                    <div style="background: rgba(0, 0, 0, 0.15); padding: 20px; border-radius: var(--border-radius); border: 1px solid var(--border-glass);">
+                        <a href="https://www.hamqsl.com/solar.html" title="Click to add Solar-Terrestrial Data to your website!" target="_blank">
+                            <img src="https://www.hamqsl.com/solar101vhf.php" alt="Solar Data" style="max-width: 100%; height: auto; display: block; margin: 0 auto; border-radius: 4px;">
+                        </a>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 12px;">Widget oficial cortesia do HamQSL. Útil para prever aberturas de propagação em bandas de VHF/HF.</p>
+                </div>
+                
+                <!-- Cartão Tempo Vila do Porto -->
+                <div class="widget-glow-card" id="weather-station-widget">
+                    <h3 style="margin-bottom: 20px; color: var(--accent-primary);">Estação Meteorológica - Vila do Porto</h3>
+                    <div class="weather-dashboard-container">
+                        <!-- Tempo Atual -->
+                        <div class="weather-current-panel">
+                            <div class="weather-main-info">
+                                <div class="weather-icon-large" id="weather-current-icon">⏳</div>
+                                <div class="weather-temp-wrap">
+                                    <span class="weather-temp-value" id="weather-current-temp">--</span>
+                                    <span class="weather-temp-unit">°C</span>
+                                </div>
+                            </div>
+                            <div class="weather-status-desc" id="weather-current-desc">A carregar dados...</div>
+                        </div>
+                        
+                        <!-- Detalhes do Vento/Pressão/Humidade -->
+                        <div class="weather-details-grid">
+                            <div class="weather-detail-item">
+                                <span class="detail-icon">💧</span>
+                                <div class="detail-meta">
+                                    <span class="detail-label">Humidade</span>
+                                    <span class="detail-val" id="weather-humidity">--%</span>
+                                </div>
+                            </div>
+                            <div class="weather-detail-item">
+                                <span class="detail-icon">💨</span>
+                                <div class="detail-meta">
+                                    <span class="detail-label">Vento</span>
+                                    <span class="detail-val" id="weather-wind">-- km/h</span>
+                                </div>
+                            </div>
+                            <div class="weather-detail-item">
+                                <span class="detail-icon">🧭</span>
+                                <div class="detail-meta">
+                                    <span class="detail-label">Dir. Vento</span>
+                                    <span class="detail-val" id="weather-wind-dir">--°</span>
+                                </div>
+                            </div>
+                            <div class="weather-detail-item">
+                                <span class="detail-icon">🌡️</span>
+                                <div class="detail-meta">
+                                    <span class="detail-label">Pressão</span>
+                                    <span class="detail-val" id="weather-pressure">-- hPa</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Previsão para os próximos dias -->
+                    <div class="weather-forecast-divider">Previsão Semanal</div>
+                    <div class="weather-forecast-row" id="weather-forecast-days">
+                        <div style="text-align: center; width: 100%; color: var(--text-muted); font-size: 0.9rem; padding: 10px 0;">A carregar previsão...</div>
+                    </div>
+                    
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 12px;">Dados meteorológicos atualizados via Open-Meteo API.</p>
+                </div>
+            </div>
+        </div>
+    </section>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Associação de Radioamadores Marienses (ARM) - Fundada em 1995 na Ilha de Santa Maria, Açores. Promovemos o radioamadorismo e apoiamos a proteção civil.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Associação de Radioamadores Marienses">
+    <meta property="og:title" content="Associação de Radioamadores Marienses">
+    <meta property="og:description" content="Portal oficial da ARM. Informações sobre a nossa rede de repetidores VHF/UHF, AllStar Link, DMR e APRS na Ilha de Santa Maria.">
+    
+    <title>ARM - Associação de Radioamadores Marienses</title>
+    
+    <link rel="shortcut icon" href="assets/images/logo2-65x121.png" type="image/x-icon">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+    <!-- NAVBAR INTERATIVA -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <a href="#/" class="navbar-brand">
+                    <img src="assets/images/logo2-65x121.png" alt="ARM Logo" class="navbar-logo">
+                    <span class="navbar-caption">ARM</span>
+                </a>
+            </div>
+            
+            <button class="navbar-toggle" id="nav-toggle" aria-label="Abrir Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            
+            <ul class="navbar-menu" id="nav-menu">
+                <li class="navbar-item"><a href="#/" class="navbar-link">Home</a></li>
+                <li class="navbar-item">
+                    <a href="#" class="navbar-link">Sobre a ARM ▾</a>
+                    <div class="navbar-dropdown">
+                        <a href="#/sobre" class="navbar-dropdown-link">A nossa História</a>
+                        <a href="#/corpos-sociais" class="navbar-dropdown-link">Corpos Sociais</a>
+                        <a href="#/estatutos" class="navbar-dropdown-link">Estatutos</a>
+                        <a href="#/sede" class="navbar-dropdown-link">A nossa Sede</a>
+                        <a href="#/proposta-socio" class="navbar-dropdown-link">Proposta de Sócio</a>
+                    </div>
+                </li>
+                <li class="navbar-item">
+                    <a href="#" class="navbar-link">Rede ARM ▾</a>
+                    <div class="navbar-dropdown">
+                        <a href="#/rep-analogicos" class="navbar-dropdown-link">Repetidores Analógicos</a>
+                        <a href="#/rep-dmr" class="navbar-dropdown-link">Repetidores DMR</a>
+                        <a href="#/digipeater" class="navbar-dropdown-link">Digipeater APRS</a>
+                    </div>
+                </li>
+                <li class="navbar-item"><a href="#/ser-radioamador" class="navbar-link">Ser Radioamador</a></li>
+                <li class="navbar-item"><a href="#/contactos" class="navbar-link">Contactos</a></li>
+                <li class="navbar-item"><a href="#/admin" class="navbar-link" style="border: 1px solid var(--accent-primary); border-radius: 4px; padding: 6px 12px; color: var(--accent-primary) !important; font-weight: 600; margin-left: 10px;">Direção 🔑</a></li>
+                
+                <!-- Ações do Navbar (Interruptor de Tema) -->
+                <li class="navbar-actions">
+                    <button class="btn-icon" id="theme-toggle" title="Mudar Tema">
+                        <span>☀️</span>
+                    </button>
+                    <a href="mailto:geral@cu1arm.com" class="btn-icon" title="Enviar Email Geral">
+                        <span>✉️</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- CONTEÚDO DINÂMICO DA SPA -->
+    <main id="app-router-view" class="fade-transition"></main>
+
+    <!-- RODAPÉ (Footer) -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <h3 class="footer-brand-title" style="color: var(--accent-primary);">Associação de Radioamadores Marienses</h3>
+                    <p class="footer-desc">Promovemos o avanço das comunicações de rádio, a partilha técnica e colaboramos ativamente com a proteção civil municipal e regional na Ilha de Santa Maria, Açores.</p>
+                </div>
+                
+                <div class="footer-nav">
+                    <h4 class="footer-nav-title">Sobre a ARM</h4>
+                    <ul class="footer-nav-links">
+                        <li><a href="#/sobre" class="footer-nav-link">História da ARM</a></li>
+                        <li><a href="#/corpos-sociais" class="footer-nav-link">Corpos Sociais</a></li>
+                        <li><a href="#/estatutos" class="footer-nav-link">Estatutos de Fundação</a></li>
+                        <li><a href="#/sede" class="footer-nav-link">A nossa Sede</a></li>
+                        <li><a href="#/proposta-socio" class="footer-nav-link">Proposta de Sócio</a></li>
+                        <li><a href="#/admin" class="footer-nav-link" style="color: var(--accent-primary); font-weight: bold;">🔑 Área de Direção</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-nav">
+                    <h4 class="footer-nav-title">Rede ARM</h4>
+                    <ul class="footer-nav-links">
+                        <li><a href="#/rep-analogicos" class="footer-nav-link">Repetidores VHF RV48</a></li>
+                        <li><a href="#/rep-dmr" class="footer-nav-link">Repetidores UHF RU692</a></li>
+                        <li><a href="#/digipeater" class="footer-nav-link">Digipeater APRS CQ1PPA</a></li>
+                        <li><a href="#/ser-radioamador" class="footer-nav-link">Ser Radioamador</a></li>
+                        <li><a href="#/contactos" class="footer-nav-link">Página de Contactos</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2026 Associação de Radioamadores Marienses - Todos os direitos reservados.</p>
+                <div class="social-icons-wrap">
+                    <a href="https://www.facebook.com/mariensehamclub" target="_blank" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;">
+                        Siga-nos no Facebook 👍
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script src="assets/js/receipt-generator.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/router.js"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+    <!-- HERO HEADER -->
+    <header class="hero">
+        <div class="container">
+            <div class="hero-tag">Estação Digital</div>
+            <h1 class="hero-title">CQ1UPA — UHF DMR / YSF</h1>
+            <p class="hero-subtitle">Estação repetidora digital de UHF ligada à rede internacional BrandMeister no cume do Pico Alto.</p>
+        </div>
+    </header>
+
+    <!-- SECÇÃO: DADOS TÉCNICOS -->
+    <section class="section">
+        <div class="container">
+            
+            <div class="grid-2">
+                <!-- Cartão 1: Detalhes Geográficos -->
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div class="card-icon">🗺️</div>
+                        <h3 class="card-title">Localização da Estação</h3>
+                        <p class="card-text">O repetidor UHF DMR partilha da excelente cota do Pico Alto, assegurando comunicações robustas tanto locais como inter-ilhas.</p>
+                        
+                        <div style="background: rgba(0, 0, 0, 0.15); padding: 16px; border-radius: 8px; border: 1px solid var(--border-glass); display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span style="color: var(--text-secondary);">Altitude / Cume:</span>
+                                <span style="font-family: var(--font-mono); color: var(--accent-primary); font-weight: 600;">Pico Alto (HM76KX)</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span style="color: var(--text-secondary);">Latitude (N):</span>
+                                <span style="font-family: var(--font-mono); color: var(--text-primary);">36º 58' 58,312"</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span style="color: var(--text-secondary);">Longitude (W):</span>
+                                <span style="font-family: var(--font-mono); color: var(--text-primary);">25º 05' 26,677"</span>
+                            </div>
+                        </div>
+                    </div>
+                    <img src="assets/images/antenna.png" alt="Antenna" style="max-height: 80px; align-self: flex-end; filter: drop-shadow(0 0 4px var(--accent-glow));">
+                </div>
+                
+                <!-- Cartão 2: Frequências e Slots -->
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div class="card-icon">📟</div>
+                        <h3 class="card-title">Características da Estação</h3>
+                        <p class="card-text">Parâmetros técnicos operacionais para configuração de repetidores digitais DMR / YSF.</p>
+                        
+                        <div style="background: rgba(0, 0, 0, 0.15); padding: 16px; border-radius: 8px; border: 1px solid var(--border-glass); display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span style="color: var(--text-secondary);">Frequência Receção (RX):</span>
+                                <span style="font-family: var(--font-mono); color: var(--accent-primary); font-weight: 600;">438.6500 MHz</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span style="color: var(--text-secondary);">Frequência Emissão (TX):</span>
+                                <span style="font-family: var(--font-mono); color: var(--text-primary);">431.0500 MHz</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span style="color: var(--text-secondary);">Color Code (CC):</span>
+                                <span style="font-family: var(--font-mono); color: var(--accent-secondary); font-weight: 600;">CC: 1</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span style="color: var(--text-secondary);">Timeslot 1 (TS1):</span>
+                                <span style="font-family: var(--font-mono); color: var(--text-primary); font-size: 0.8rem;">TG 268, TG 91, TG 915</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span style="color: var(--text-secondary);">Timeslot 2 (TS2):</span>
+                                <span style="font-family: var(--font-mono); color: var(--text-primary); font-size: 0.8rem;">TG 2686, TG 26861</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span style="color: var(--text-secondary);">Potência Radiada (PAR):</span>
+                                <span style="font-family: var(--font-mono); color: var(--text-primary);">30.0W</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="#/repetidor-convertido" class="btn btn-primary" style="text-align: center;">História da Conversão do Repetidor</a>
+                </div>
+            </div>
+
+            <!-- Mapa Interativo do Pico Alto e Enlaces -->
+            <div class="card" style="margin-top: 30px; padding: 20px;">
+                <h3 style="font-size: 1.35rem; margin-bottom: 16px; color: var(--accent-primary); border-bottom: 1px solid var(--border-glass); padding-bottom: 10px;">Enquadramento Geográfico & Enlace de Rádio</h3>
+                <div id="map-repeater" style="height: 350px; border-radius: 8px; border: 1px solid var(--border-glass); overflow: hidden;"></div>
+            </div>
+            
+        </div>
+    </section>

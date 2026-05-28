@@ -1,0 +1,85 @@
+    <!-- HERO HEADER -->
+    <header class="hero">
+        <div class="container">
+            <div class="hero-tag">Modos Digitais</div>
+            <h1 class="hero-title">O que é o DMR?</h1>
+            <p class="hero-subtitle">Conheça o padrão de rádio digital Digital Mobile Radio que liga amadores globalmente com áudio cristalino.</p>
+        </div>
+    </header>
+
+    <!-- ARTIGO -->
+    <section class="section">
+        <div class="container" style="max-width: 900px; display: flex; flex-direction: column; gap: 30px;">
+            
+            <!-- O que é o DMR -->
+            <div class="card">
+                <h3 style="color: var(--accent-primary); font-size: 1.35rem; margin-bottom: 12px;">Definição & Padrões</h3>
+                <p class="card-text" style="font-size: 0.98rem; line-height: 1.7; margin-bottom: 0;">
+                    O **Digital Mobile Radio (DMR)** é um padrão de comunicações digitais originalmente desenvolvido pelo Instituto Europeu de Padrões de Telecomunicações (ETSI) em 2005 para uso comercial. Atualmente, os radioamadores adaptaram-no de forma massiva.
+                    <br><br>
+                    Trata-se de uma rede aberta otimizada pelo uso ultra-eficiente de largura de banda via **TDMA (Acesso Múltiplo por Divisão de Tempo)**. O TDMA divide um canal de frequência em dois **Timeslots** (intervalos de tempo de transmissão alternados), permitindo duas conversações digitais independentes e em simultâneo na mesma frequência sem qualquer interferência física.
+                </p>
+            </div>
+
+            <!-- Como começar -->
+            <div class="card">
+                <h3 style="color: var(--accent-primary); font-size: 1.35rem; margin-bottom: 12px;">Como posso começar a operar em DMR?</h3>
+                <p class="card-text" style="font-size: 0.98rem; line-height: 1.7; margin-bottom: 16px;">
+                    Para transmitir na rede digital DMR, precisará de:
+                </p>
+                <ol style="color: var(--text-secondary); margin-left: 20px; font-size: 0.95rem; display: flex; flex-direction: column; gap: 8px;">
+                    <li>Ser radioamador **licenciado**.</li>
+                    <li>Registar-se gratuitamente no portal <a href="https://www.radioid.net/" target="_blank" style="font-weight: 600;">RadioID.net</a> para obter o seu **ID DMR de 7 dígitos** exclusivo de operador.</li>
+                    <li>Um rádio compatível com DMR programado com o seu ID e o repetidor local configurado.</li>
+                </ol>
+            </div>
+
+            <!-- Conceitos Chave -->
+            <div class="grid-2">
+                <div class="card">
+                    <h4 style="color: var(--accent-primary); margin-bottom: 8px;">O que é um Codeplug?</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">
+                        É o ficheiro de configuração contendo frequências, canais, contactos, zonas e listas de receção que programa no seu rádio DMR. Permite que o equipamento sintonize e entre na rede BrandMeister.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <h4 style="color: var(--accent-primary); margin-bottom: 8px;">O que é um Talkgroup (TG)?</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">
+                        São salas de conversação digitais em grupo. Ao selecionar um TG (como o **TG 268** para Portugal ou o **TG 91** para o mundo), a sua transmissão é repetida em todos os repetidores e hotspots do mundo sintonizados nesse grupo.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Hotspots e Vocoders -->
+            <div class="card">
+                <h3 style="color: var(--accent-primary); font-size: 1.35rem; margin-bottom: 12px;">Redes de Suporte & MMDVM</h3>
+                <p class="card-text" style="font-size: 0.98rem; line-height: 1.7; margin-bottom: 0;">
+                    Para aceder à rede DMR, pode utilizar uma **Estação Repetidora Digital** instalada (como o repetidor da ARM **CQ1UPA** no Pico Alto) ou um **Hotspot Simplex** privado (baseado em placas MMDVM e Raspberry Pi) ligado ao Wi-Fi de sua casa.
+                    <br><br>
+                    O sinal analógico de voz é convertido em dados binários de alta qualidade via vocoder **AMBE+2**, garantindo transmissões livres de estática, ruído ou ruído de fundo. Se o rádio receber dados binários, o áudio será reproduzido com nitidez de estúdio.
+                </p>
+            </div>
+
+            <!-- Equipamento Recomendado -->
+            <div class="card">
+                <h3 style="color: var(--accent-primary); font-size: 1.35rem; margin-bottom: 16px;">Marcas & Rádios DMR Populares</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 0.9rem; color: var(--text-secondary);">
+                    <div>
+                        <strong style="color: var(--text-primary); display: block; margin-bottom: 6px;">Marcas de Referência:</strong>
+                        Anytone, Motorola, Hytera, Retevis, Baofeng, Ailunce, BTech.
+                    </div>
+                    <div>
+                        <strong style="color: var(--text-primary); display: block; margin-bottom: 6px;">Equipamento Portátil Recomendado:</strong>
+                        Anytone AT-D878UV, Ailunce HD1, Retevis RT3S, Motorola XPR.
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="#/" class="btn btn-secondary">Voltar ao Painel Geral</a>
+                <a href="#/rep-dmr" class="btn btn-primary" style="margin-left: 16px;">Ver Repetidor DMR CQ1UPA</a>
+            </div>
+
+        </div>
+    </section>
