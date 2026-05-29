@@ -3377,6 +3377,36 @@ window.fetch = async function(input, init) {
 // Mock requests resolver
 async function handleMockRequest(action, initOptions) {
     const db = getMockDatabase();
+    
+    function autoCreateMockCurrentYearQuotas(mockDb) {
+        const currentYear = new Date().getFullYear();
+        let changed = false;
+        if (mockDb && mockDb.socios && mockDb.quotas) {
+            mockDb.socios.forEach(s => {
+                if (s.estado === 'Ativo') {
+                    const existing = mockDb.quotas.find(q => q.socio_id === s.id && q.ano === currentYear);
+                    if (!existing) {
+                        mockDb.quotas.push({
+                            id: Date.now() + Math.floor(Math.random() * 100000),
+                            socio_id: s.id,
+                            ano: currentYear,
+                            valor: 25.0,
+                            pago: 0,
+                            data_pagamento: '',
+                            numero_recibo: ''
+                        });
+                        changed = true;
+                    }
+                }
+            });
+            if (changed) {
+                localStorage.setItem('arm_mock_db', JSON.stringify(mockDb));
+            }
+        }
+    }
+    
+    autoCreateMockCurrentYearQuotas(db);
+
     const body = initOptions && initOptions.body ? JSON.parse(initOptions.body) : null;
     const headers = initOptions && initOptions.headers ? initOptions.headers : {};
     const authHeader = headers['Authorization'] || '';
@@ -3662,6 +3692,24 @@ async function handleMockRequest(action, initOptions) {
         const id = parseInt(body.id);
         const index = db.contabilidade.findIndex(t => t.id === id);
         if (index === -1) return response({ error: "Lançamento não encontrado." }, 404);
+
+        const trans = db.contabilidade[index];
+        if (trans.categoria === 'Quotas' && trans.descricao) {
+            const match = trans.descricao.match(/^Quota (\d{4}) - Sócio N.º (\d+)/);
+            if (match) {
+                const ano = parseInt(match[1]);
+                const numeroSocio = parseInt(match[2]);
+                const member = db.socios.find(s => s.numero_socio === numeroSocio);
+                if (member) {
+                    const quota = db.quotas.find(q => q.socio_id === member.id && q.ano === ano && q.pago === 1);
+                    if (quota) {
+                        quota.pago = 0;
+                        quota.data_pagamento = '';
+                        quota.numero_recibo = '';
+                    }
+                }
+            }
+        }
 
         db.contabilidade.splice(index, 1);
 

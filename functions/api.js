@@ -360,6 +360,9 @@ async function handleGetData(request, db, headers) {
     // Clean up expired sessions periodically on data fetch
     await db.prepare(`DELETE FROM admin_sessions WHERE expires_at < ?`).bind(Date.now()).run();
 
+    // Auto-create current year quotas if missing
+    await autoCreateCurrentYearQuotas(db);
+
     // Dynamic schema creation safety net
     await db.prepare(`
         CREATE TABLE IF NOT EXISTS update_requests (
@@ -801,6 +804,28 @@ async function handleDeleteTransaction(request, db, headers) {
         return new Response(JSON.stringify({ error: "Transaction ID is required." }), { status: 400, headers });
     }
 
+    // Retrieve transaction details before deleting
+    const transaction = await db.prepare(`SELECT * FROM contabilidade WHERE id = ?`).bind(id).first();
+    if (!transaction) {
+        return new Response(JSON.stringify({ error: "Transaction not found." }), { status: 404, headers });
+    }
+
+    // Revert quota status if this was a quota payment transaction
+    if (transaction.categoria === 'Quotas' && transaction.descricao) {
+        const match = transaction.descricao.match(/^Quota (\d{4}) - Sócio N.º (\d+)/);
+        if (match) {
+            const ano = parseInt(match[1]);
+            const numeroSocio = parseInt(match[2]);
+            const member = await db.prepare(`SELECT id FROM socios WHERE numero_socio = ?`).bind(numeroSocio).first();
+            if (member) {
+                await db.prepare(`
+                    UPDATE quotas SET pago = 0, data_pagamento = '', numero_recibo = '' 
+                    WHERE socio_id = ? AND ano = ? AND pago = 1
+                `).bind(member.id, ano).run();
+            }
+        }
+    }
+
     await db.prepare(`DELETE FROM contabilidade WHERE id = ?`).bind(id).run();
 
     return new Response(JSON.stringify({ message: "Transaction deleted successfully." }), { status: 200, headers });
@@ -963,6 +988,9 @@ async function handleGetSocioData(request, db, headers) {
     // Clean up expired sessions periodically on data fetch
     await db.prepare(`DELETE FROM socio_sessions WHERE expires_at < ?`).bind(Date.now()).run();
 
+    // Auto-create current year quotas if missing
+    await autoCreateCurrentYearQuotas(db);
+
     const socio = await db.prepare(`SELECT * FROM socios WHERE id = ?`).bind(socioId).first();
     const quotas = (await db.prepare(`SELECT * FROM quotas WHERE socio_id = ? ORDER BY ano DESC`).bind(socioId).all()).results;
 
@@ -1077,6 +1105,22 @@ async function handleRejectUpdateRequest(request, db, headers) {
     await db.prepare(`UPDATE update_requests SET status = 'rejeitado' WHERE id = ?`).bind(request_id).run();
 
     return new Response(JSON.stringify({ message: "Update request rejected." }), { status: 200, headers });
+}
+
+async function autoCreateCurrentYearQuotas(db) {
+    const currentYear = new Date().getFullYear();
+    const activeMembers = (await db.prepare(`SELECT id FROM socios WHERE estado = 'Ativo'`).all()).results;
+    if (activeMembers && activeMembers.length > 0) {
+        for (const m of activeMembers) {
+            const existing = await db.prepare(`SELECT id FROM quotas WHERE socio_id = ? AND ano = ?`).bind(m.id, currentYear).first();
+            if (!existing) {
+                await db.prepare(`
+                    INSERT INTO quotas (socio_id, ano, valor, pago, data_pagamento, numero_recibo)
+                    VALUES (?, ?, 25.0, 0, '', '')
+                `).bind(m.id, currentYear).run();
+            }
+        }
+    }
 }
 
 
