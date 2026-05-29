@@ -149,27 +149,85 @@
             </div>
 
             <!-- Formulário de Atualização de Dados -->
-            <div class="card" style="padding: 24px; max-width: 600px;">
+            <div class="card" style="padding: 24px; max-width: 750px;">
                 <h3 style="color: var(--text-primary); margin: 0 0 8px 0; font-size: 1.1rem; font-weight: 700;">Solicitar Atualização de Dados</h3>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Se mudou de morada, telefone ou e-mail, envie as alterações abaixo. Os dados serão validados pela direção antes de serem atualizados na sua ficha oficial.</p>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Atualize a informação da sua ficha de sócio nos campos abaixo. O seu pedido será submetido e ficará pendente de validação pela direção antes de ser definitivamente gravado.</p>
                 
                 <form id="socio-update-form" style="display: flex; flex-direction: column; gap: 16px;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
                         <div style="display: flex; flex-direction: column; gap: 6px;">
-                            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Telemóvel Novo</label>
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Telemóvel</label>
                             <input type="text" id="socio-update-mobile" style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem;">
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 6px;">
-                            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">E-mail Novo</label>
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Telefone Fixo</label>
+                            <input type="text" id="socio-update-phone" style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">E-mail</label>
                             <input type="email" id="socio-update-email" style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem;">
                         </div>
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">IBAN</label>
+                            <input type="text" id="socio-update-iban" placeholder="PT50..." style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem;">
+                        </div>
                     </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Profissão</label>
+                            <input type="text" id="socio-update-job" style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Habilitações Académicas</label>
+                            <input type="text" id="socio-update-degree" style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">NIF</label>
+                            <input type="text" id="socio-update-nif" style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Cartão de Cidadão</label>
+                            <input type="text" id="socio-update-cc" style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem;">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px;">
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Morada</label>
+                            <input type="text" id="socio-update-address" style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Código Postal</label>
+                            <input type="text" id="socio-update-zip" placeholder="Ex: 9580-540" style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Freguesia</label>
+                            <input type="text" id="socio-update-freguesia" style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem;">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Concelho</label>
+                            <input type="text" id="socio-update-concelho" style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Distrito</label>
+                            <input type="text" id="socio-update-distrito" style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">País</label>
+                            <input type="text" id="socio-update-pais" style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem;">
+                        </div>
+                    </div>
+
                     <div style="display: flex; flex-direction: column; gap: 6px;">
-                        <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Morada Nova Completa</label>
-                        <input type="text" id="socio-update-address" style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem; width: 100%;">
+                        <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Foto de Perfil (URL)</label>
+                        <input type="text" id="socio-update-photo" placeholder="https://..." style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem; width: 100%;">
                     </div>
                     <div style="display: flex; justify-content: flex-end;">
-                        <button type="submit" class="btn btn-primary" style="padding: 10px 24px; font-size: 0.9rem; cursor: pointer;">Enviar Pedido de Atualização ✉️</button>
+                        <button type="submit" class="btn btn-primary" style="padding: 10px 24px; font-size: 0.9rem; cursor: pointer;">Submeter Pedido à Direção ✉️</button>
                     </div>
                 </form>
             </div>

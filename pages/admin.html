@@ -116,6 +116,9 @@
                     <button class="btn admin-tab-btn" data-tab="tab-contabilidade" style="font-size: 0.9rem; padding: 10px 20px; border-radius: 6px 6px 0 0; background: transparent; color: var(--text-secondary); border: none; cursor: pointer;">
                         📊 Contabilidade & Livro Caixa
                     </button>
+                    <button class="btn admin-tab-btn" data-tab="tab-atualizacoes" style="font-size: 0.9rem; padding: 10px 20px; border-radius: 6px 6px 0 0; background: transparent; color: var(--text-secondary); border: none; cursor: pointer;">
+                        📝 Pedidos de Alteração (<span id="count-atualizacoes">0</span>)
+                    </button>
                 </div>
 
                 <!-- CONTEÚDO DAS TABS -->
@@ -274,6 +277,27 @@
                                 </thead>
                                 <tbody id="contabilidade-table-body" style="color: var(--text-secondary);">
                                     <tr><td colspan="5" style="padding: 24px; text-align: center; color: var(--text-muted);">A carregar dados...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 5: PEDIDOS DE ALTERAÇÃO -->
+                    <div id="tab-atualizacoes" class="admin-tab-pane">
+                        <h3 style="font-size: 1.25rem; margin-bottom: 20px; color: var(--accent-primary);">Pedidos de Atualização de Dados de Sócios</h3>
+                        <div style="overflow-x: auto; width: 100%;">
+                            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                                <thead>
+                                    <tr style="border-bottom: 1.5px solid var(--border-glass); color: var(--text-primary); font-weight: 700;">
+                                        <th style="padding: 12px 10px; width: 100px;">Sócio N.º</th>
+                                        <th style="padding: 12px 10px; width: 180px;">Nome</th>
+                                        <th style="padding: 12px 10px; width: 120px;">Data Pedido</th>
+                                        <th style="padding: 12px 10px;">Dados Propostos para Atualização</th>
+                                        <th style="padding: 12px 10px; text-align: right; width: 160px;">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="atualizacoes-table-body" style="color: var(--text-secondary);">
+                                    <tr><td colspan="5" style="padding: 24px; text-align: center; color: var(--text-muted);">Sem pedidos de alteração pendentes.</td></tr>
                                 </tbody>
                             </table>
                         </div>

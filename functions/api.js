@@ -68,6 +68,10 @@ export async function onRequest(context) {
                 return await handleGetSocioData(request, env.DB, corsHeaders);
             case 'update_socio_profile':
                 return await handleUpdateSocioProfile(request, env.DB, corsHeaders);
+            case 'approve_update_request':
+                return await handleApproveUpdateRequest(request, env.DB, corsHeaders);
+            case 'reject_update_request':
+                return await handleRejectUpdateRequest(request, env.DB, corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: "Invalid action." }), {
                     status: 400,
@@ -158,6 +162,15 @@ async function handleInit(db, headers) {
             token TEXT PRIMARY KEY,
             socio_id INTEGER,
             expires_at INTEGER
+        );`,
+        `CREATE TABLE IF NOT EXISTS update_requests (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            socio_id INTEGER,
+            numero_socio INTEGER,
+            nome TEXT,
+            dados TEXT,
+            status TEXT DEFAULT 'pendente',
+            data_submissao TEXT
         );`
     ];
 
@@ -345,16 +358,31 @@ async function handleGetData(request, db, headers) {
     // Clean up expired sessions periodically on data fetch
     await db.prepare(`DELETE FROM admin_sessions WHERE expires_at < ?`).bind(Date.now()).run();
 
+    // Dynamic schema creation safety net
+    await db.prepare(`
+        CREATE TABLE IF NOT EXISTS update_requests (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            socio_id INTEGER,
+            numero_socio INTEGER,
+            nome TEXT,
+            dados TEXT,
+            status TEXT DEFAULT 'pendente',
+            data_submissao TEXT
+        );
+    `).run();
+
     const candidatos = (await db.prepare(`SELECT * FROM candidatos ORDER BY data_submissao DESC`).all()).results;
     const socios = (await db.prepare(`SELECT * FROM socios ORDER BY numero_socio ASC`).all()).results;
     const quotas = (await db.prepare(`SELECT * FROM quotas ORDER BY ano DESC`).all()).results;
     const contabilidade = (await db.prepare(`SELECT * FROM contabilidade ORDER BY data DESC`).all()).results;
+    const updateRequests = (await db.prepare(`SELECT * FROM update_requests WHERE status = 'pendente' ORDER BY data_submissao DESC`).all()).results;
 
     return new Response(JSON.stringify({
         candidatos,
         socios,
         quotas,
-        contabilidade
+        contabilidade,
+        update_requests: updateRequests
     }), { status: 200, headers });
 }
 
@@ -906,7 +934,7 @@ async function handleGetSocioData(request, db, headers) {
 }
 
 // ==========================================================================
-// 17. MEMBER PORTAL - UPDATE PROFILE DIRECTLY
+// 17. MEMBER PORTAL - UPDATE PROFILE REQUEST (PENDING DIRECTION APPROVAL)
 // ==========================================================================
 async function handleUpdateSocioProfile(request, db, headers) {
     if (request.method !== 'POST') {
@@ -918,17 +946,101 @@ async function handleUpdateSocioProfile(request, db, headers) {
         return new Response(JSON.stringify({ error: "Sessão inválida ou expirada." }), { status: 401, headers });
     }
 
-    const { telemovel, email, morada } = await request.json();
+    // Dynamic schema creation safety net
+    await db.prepare(`
+        CREATE TABLE IF NOT EXISTS update_requests (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            socio_id INTEGER,
+            numero_socio INTEGER,
+            nome TEXT,
+            dados TEXT,
+            status TEXT DEFAULT 'pendente',
+            data_submissao TEXT
+        );
+    `).run();
 
-    if (!email || !telemovel || !morada) {
-        return new Response(JSON.stringify({ error: "Todos os campos de atualização são obrigatórios." }), { status: 400, headers });
+    const bodyData = await request.json();
+
+    // Check if the member exists
+    const member = await db.prepare(`SELECT nome, numero_socio FROM socios WHERE id = ?`).bind(socioId).first();
+    if (!member) {
+        return new Response(JSON.stringify({ error: "Sócio não encontrado." }), { status: 404, headers });
     }
 
-    await db.prepare(`
-        UPDATE socios SET telemovel = ?, email = ?, morada = ? WHERE id = ?
-    `).bind(telemovel, email, morada, socioId).run();
+    const timestamp = new Date().toISOString().split('T')[0];
 
-    return new Response(JSON.stringify({ message: "Perfil atualizado com sucesso." }), { status: 200, headers });
+    // Insert pending update request instead of modifying socio details directly
+    await db.prepare(`
+        INSERT INTO update_requests (socio_id, numero_socio, nome, dados, status, data_submissao)
+        VALUES (?, ?, ?, ?, 'pendente', ?)
+    `).bind(socioId, member.numero_socio, member.nome, JSON.stringify(bodyData), timestamp).run();
+
+    return new Response(JSON.stringify({ message: "Pedido de atualização submetido à direção com sucesso." }), { status: 200, headers });
+}
+
+// ==========================================================================
+// 18. UPDATE PROFILE REQUESTS (ADMIN ACTIONS)
+// ==========================================================================
+async function handleApproveUpdateRequest(request, db, headers) {
+    if (request.method !== 'POST') {
+        return new Response(JSON.stringify({ error: "Method not allowed." }), { status: 405, headers });
+    }
+
+    if (!(await isAuthenticated(request, db))) {
+        return new Response(JSON.stringify({ error: "Unauthorized." }), { status: 401, headers });
+    }
+
+    const { request_id } = await request.json();
+    if (!request_id) {
+        return new Response(JSON.stringify({ error: "Request ID is required." }), { status: 400, headers });
+    }
+
+    const updateReq = await db.prepare(`SELECT * FROM update_requests WHERE id = ?`).bind(request_id).first();
+    if (!updateReq) {
+        return new Response(JSON.stringify({ error: "Request not found." }), { status: 404, headers });
+    }
+
+    const dados = JSON.parse(updateReq.dados);
+
+    // Apply updates to the member record
+    await db.prepare(`
+        UPDATE socios SET
+            telemovel = ?, telefone = ?, email = ?, iban = ?,
+            profissao = ?, habilitacoes = ?, nif = ?, cartao_cidadao = ?,
+            morada = ?, cod_postal = ?, freguesia = ?, concelho = ?,
+            distrito = ?, pais = ?, fotografia = ?
+        WHERE id = ?
+    `).bind(
+        dados.telemovel, dados.telefone, dados.email, dados.iban,
+        dados.profissao, dados.habilitacoes, dados.nif, dados.cartao_cidadao,
+        dados.morada, dados.cod_postal, dados.freguesia, dados.concelho,
+        dados.distrito, dados.pais, dados.fotografia,
+        updateReq.socio_id
+    ).run();
+
+    // Mark update request as approved
+    await db.prepare(`UPDATE update_requests SET status = 'aprovado' WHERE id = ?`).bind(request_id).run();
+
+    return new Response(JSON.stringify({ message: "Sócio profile updated successfully." }), { status: 200, headers });
+}
+
+async function handleRejectUpdateRequest(request, db, headers) {
+    if (request.method !== 'POST') {
+        return new Response(JSON.stringify({ error: "Method not allowed." }), { status: 405, headers });
+    }
+
+    if (!(await isAuthenticated(request, db))) {
+        return new Response(JSON.stringify({ error: "Unauthorized." }), { status: 401, headers });
+    }
+
+    const { request_id } = await request.json();
+    if (!request_id) {
+        return new Response(JSON.stringify({ error: "Request ID is required." }), { status: 400, headers });
+    }
+
+    await db.prepare(`UPDATE update_requests SET status = 'rejeitado' WHERE id = ?`).bind(request_id).run();
+
+    return new Response(JSON.stringify({ message: "Update request rejected." }), { status: 200, headers });
 }
 
 

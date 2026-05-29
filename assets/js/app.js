@@ -1228,6 +1228,10 @@ window.initAdminPage = function() {
         // Tabs Count
         document.getElementById('count-candidatos').textContent = data.candidatos.length;
         document.getElementById('count-socios').textContent = totalSocios;
+        const countAtualizacoesEl = document.getElementById('count-atualizacoes');
+        if (countAtualizacoesEl) {
+            countAtualizacoesEl.textContent = (data.update_requests || []).length;
+        }
 
         // B. Render Candidates Table
         const candidatesBody = document.getElementById('candidatos-table-body');
@@ -1311,6 +1315,102 @@ window.initAdminPage = function() {
                     }
                 });
             });
+        }
+
+        // B2. Render Update Requests Table
+        const updatesBody = document.getElementById('atualizacoes-table-body');
+        if (updatesBody) {
+            updatesBody.innerHTML = '';
+            const pendingUpdates = data.update_requests || [];
+            if (pendingUpdates.length === 0) {
+                updatesBody.innerHTML = `<tr><td colspan="5" style="padding: 24px; text-align: center; color: var(--text-muted);">Sem pedidos de alteração pendentes.</td></tr>`;
+            } else {
+                pendingUpdates.forEach(r => {
+                    const tr = document.createElement('tr');
+                    tr.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
+                    
+                    const dados = typeof r.dados === 'string' ? JSON.parse(r.dados) : r.dados;
+                    let diffHtml = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; font-size: 0.8rem;">';
+                    
+                    const socio = data.socios.find(s => s.id === r.socio_id);
+                    const ptKeys = {
+                        telemovel: "Telemóvel", telefone: "Telefone", email: "E-mail", iban: "IBAN",
+                        profissao: "Profissão", habilitacoes: "Habilitações", nif: "NIF", cartao_cidadao: "C. Cidadão",
+                        morada: "Morada", cod_postal: "Cód. Postal", freguesia: "Freguesia", concelho: "Concelho",
+                        distrito: "Distrito", pais: "País", fotografia: "Foto (URL)"
+                    };
+                    
+                    for (const [key, val] of Object.entries(dados)) {
+                        const oldVal = socio ? socio[key] : '';
+                        if (val !== undefined && val !== null && val.toString().trim() !== (oldVal || '').toString().trim()) {
+                            const label = ptKeys[key] || key;
+                            diffHtml += `<div><strong>${label}:</strong> <span style="color:var(--accent-danger); text-decoration:line-through;">${oldVal || '(vazio)'}</span> ➔ <span style="color:var(--accent-secondary); font-weight:600;">${val || '(vazio)'}</span></div>`;
+                        }
+                    }
+                    diffHtml += '</div>';
+
+                    tr.innerHTML = `
+                        <td style="padding: 12px 10px; font-family: var(--font-mono); font-weight: 700; color: var(--accent-primary);">
+                            Sócio N.º ${String(r.numero_socio).padStart(4, '0')}
+                        </td>
+                        <td style="padding: 12px 10px; font-weight: 600; color: var(--text-primary);">${r.nome}</td>
+                        <td style="padding: 12px 10px; font-family: var(--font-mono); font-size: 0.8rem;">${r.data_submissao}</td>
+                        <td style="padding: 12px 10px;">${diffHtml}</td>
+                        <td style="padding: 12px 10px; text-align: right; white-space: nowrap;">
+                            <button class="btn btn-primary approve-update-btn" data-id="${r.id}" style="padding: 5px 10px; font-size: 0.75rem; cursor: pointer; margin-right: 4px;">Aprovar ✔</button>
+                            <button class="btn btn-secondary reject-update-btn" data-id="${r.id}" style="padding: 5px 10px; font-size: 0.75rem; cursor: pointer; border-color: var(--accent-danger); color: var(--accent-danger);">Rejeitar ✖</button>
+                        </td>
+                    `;
+                    updatesBody.appendChild(tr);
+                });
+
+                // Bind approve / reject update requests buttons
+                updatesBody.querySelectorAll('.approve-update-btn').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const id = btn.getAttribute('data-id');
+                        if (!confirm("Aprovar e aplicar estas alterações na ficha do sócio?")) return;
+                        try {
+                            const response = await fetch('/api?action=approve_update_request', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${authToken}`
+                                },
+                                body: JSON.stringify({ request_id: id })
+                            });
+                            const res = await response.json();
+                            if (!response.ok) throw new Error(res.error || "Erro ao aprovar.");
+                            alert("Alterações aprovadas e aplicadas!");
+                            loadDashboardData(authToken);
+                        } catch (e) {
+                            alert(e.message);
+                        }
+                    });
+                });
+
+                updatesBody.querySelectorAll('.reject-update-btn').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const id = btn.getAttribute('data-id');
+                        if (!confirm("Rejeitar este pedido de alteração de dados?")) return;
+                        try {
+                            const response = await fetch('/api?action=reject_update_request', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${authToken}`
+                                },
+                                body: JSON.stringify({ request_id: id })
+                            });
+                            const res = await response.json();
+                            if (!response.ok) throw new Error(res.error || "Erro ao rejeitar.");
+                            alert("Pedido de alteração rejeitado.");
+                            loadDashboardData(authToken);
+                        } catch (e) {
+                            alert(e.message);
+                        }
+                    });
+                });
+            }
         }
 
         // C. Render Members Table
@@ -3252,7 +3352,8 @@ async function handleMockRequest(action, initOptions) {
             candidatos: db.candidatos,
             socios: db.socios,
             quotas: db.quotas,
-            contabilidade: db.contabilidade
+            contabilidade: db.contabilidade,
+            update_requests: (db.update_requests || []).filter(r => r.status === 'pendente')
         });
     }
 
@@ -3483,15 +3584,54 @@ async function handleMockRequest(action, initOptions) {
 
     if (action === 'update_socio_profile') {
         const socioId = localStorage.getItem('arm_mock_logged_socio_id');
-        const index = db.socios.findIndex(s => s.id === parseInt(socioId));
-        if (index === -1) return response({ error: "Sócio não encontrado." }, 404);
+        const socio = db.socios.find(s => s.id === parseInt(socioId));
+        if (!socio) return response({ error: "Sócio não encontrado." }, 404);
 
-        db.socios[index].telemovel = body.telemovel;
-        db.socios[index].email = body.email;
-        db.socios[index].morada = body.morada;
+        if (!db.update_requests) db.update_requests = [];
+
+        db.update_requests.push({
+            id: Date.now(),
+            socio_id: socio.id,
+            numero_socio: socio.numero_socio,
+            nome: socio.nome,
+            dados: JSON.stringify(body),
+            status: 'pendente',
+            data_submissao: new Date().toISOString().split('T')[0]
+        });
 
         localStorage.setItem('arm_mock_db', JSON.stringify(db));
-        return response({ message: "Perfil de sócio atualizado com sucesso no Mock DB." });
+        return response({ message: "Pedido de atualização registado (pendente no Mock DB)." });
+    }
+
+    if (action === 'approve_update_request') {
+        const reqId = parseInt(body.request_id);
+        const reqIndex = db.update_requests.findIndex(r => r.id === reqId);
+        if (reqIndex === -1) return response({ error: "Pedido não encontrado." }, 404);
+
+        const updateReq = db.update_requests[reqIndex];
+        const dados = JSON.parse(updateReq.dados);
+        
+        const socioIndex = db.socios.findIndex(s => s.id === updateReq.socio_id);
+        if (socioIndex !== -1) {
+            db.socios[socioIndex] = {
+                ...db.socios[socioIndex],
+                ...dados
+            };
+        }
+
+        updateReq.status = 'aprovado';
+        localStorage.setItem('arm_mock_db', JSON.stringify(db));
+        return response({ message: "Pedido aprovado e sócio atualizado no Mock DB." });
+    }
+
+    if (action === 'reject_update_request') {
+        const reqId = parseInt(body.request_id);
+        const reqIndex = db.update_requests.findIndex(r => r.id === reqId);
+        if (reqIndex === -1) return response({ error: "Pedido não encontrado." }, 404);
+
+        db.update_requests[reqIndex].status = 'rejeitado';
+        localStorage.setItem('arm_mock_db', JSON.stringify(db));
+        return response({ message: "Pedido rejeitado no Mock DB." });
     }
 
     return response({ error: "Mock action not implemented." }, 404);
@@ -3666,9 +3806,21 @@ window.initSocioPortal = function() {
             e.preventDefault();
             const token = localStorage.getItem('socio_token');
             const data = {
-                telemovel: document.getElementById('socio-update-mobile').value,
-                email: document.getElementById('socio-update-email').value,
-                morada: document.getElementById('socio-update-address').value
+                telemovel: document.getElementById('socio-update-mobile').value.trim(),
+                telefone: document.getElementById('socio-update-phone').value.trim(),
+                email: document.getElementById('socio-update-email').value.trim(),
+                iban: document.getElementById('socio-update-iban').value.trim(),
+                profissao: document.getElementById('socio-update-job').value.trim(),
+                habilitacoes: document.getElementById('socio-update-degree').value.trim(),
+                nif: document.getElementById('socio-update-nif').value.trim(),
+                cartao_cidadao: document.getElementById('socio-update-cc').value.trim(),
+                morada: document.getElementById('socio-update-address').value.trim(),
+                cod_postal: document.getElementById('socio-update-zip').value.trim(),
+                freguesia: document.getElementById('socio-update-freguesia').value.trim(),
+                concelho: document.getElementById('socio-update-concelho').value.trim(),
+                distrito: document.getElementById('socio-update-distrito').value.trim(),
+                pais: document.getElementById('socio-update-pais').value.trim(),
+                fotografia: document.getElementById('socio-update-photo').value.trim()
             };
             try {
                 const response = await fetch('/api?action=update_socio_profile', {
@@ -3681,7 +3833,7 @@ window.initSocioPortal = function() {
                 });
                 const result = await response.json();
                 if (!response.ok) throw new Error(result.error || "Erro ao submeter pedido.");
-                alert("Perfil de sócio atualizado com sucesso!");
+                alert("O seu pedido de alteração de dados foi submetido e encontra-se pendente de aprovação pela direção!");
                 loadSocioDashboard(token);
             } catch (err) {
                 alert(err.message);
@@ -3751,8 +3903,20 @@ async function loadSocioDashboard(token) {
 
         // Prepopulate update form
         document.getElementById('socio-update-mobile').value = socio.telemovel || '';
+        document.getElementById('socio-update-phone').value = socio.telefone || '';
         document.getElementById('socio-update-email').value = socio.email || '';
+        document.getElementById('socio-update-iban').value = socio.iban || '';
+        document.getElementById('socio-update-job').value = socio.profissao || '';
+        document.getElementById('socio-update-degree').value = socio.habilitacoes || '';
+        document.getElementById('socio-update-nif').value = socio.nif || '';
+        document.getElementById('socio-update-cc').value = socio.cartao_cidadao || '';
         document.getElementById('socio-update-address').value = socio.morada || '';
+        document.getElementById('socio-update-zip').value = socio.cod_postal || '';
+        document.getElementById('socio-update-freguesia').value = socio.freguesia || '';
+        document.getElementById('socio-update-concelho').value = socio.concelho || '';
+        document.getElementById('socio-update-distrito').value = socio.distrito || '';
+        document.getElementById('socio-update-pais').value = socio.pais || '';
+        document.getElementById('socio-update-photo').value = socio.fotografia || '';
 
         // 2. Render Quotas Table
         const quotasBody = document.getElementById('socio-quotas-table-body');
