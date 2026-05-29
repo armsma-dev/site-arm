@@ -743,6 +743,57 @@ window.initAdminPage = function() {
         });
     });
 
+    // Modal de Visualização de Comprovativo
+    const proofModal = document.getElementById('view-proof-modal');
+    const closeProofModalBtn = document.getElementById('btn-close-proof-modal');
+    const closeProofModalBottomBtn = document.getElementById('btn-close-proof-modal-bottom');
+    const proofImg = document.getElementById('view-proof-image');
+    const proofPdf = document.getElementById('view-proof-pdf');
+    const proofUnsupported = document.getElementById('view-proof-unsupported');
+    const downloadProofBtn = document.getElementById('btn-download-proof');
+
+    window.openViewProofModal = function(base64Data) {
+        if (!proofModal) return;
+        
+        if (proofImg) proofImg.style.display = 'none';
+        if (proofPdf) proofPdf.style.display = 'none';
+        if (proofUnsupported) proofUnsupported.style.display = 'none';
+        
+        if (downloadProofBtn) {
+            downloadProofBtn.href = base64Data;
+        }
+        
+        const isPdf = base64Data.startsWith('data:application/pdf');
+        const isImage = base64Data.startsWith('data:image/');
+        
+        if (isImage) {
+            if (proofImg) {
+                proofImg.src = base64Data;
+                proofImg.style.display = 'inline-block';
+            }
+            if (downloadProofBtn) downloadProofBtn.download = "comprovativo.png";
+        } else if (isPdf) {
+            if (proofPdf) {
+                proofPdf.src = base64Data;
+                proofPdf.style.display = 'block';
+            }
+            if (downloadProofBtn) downloadProofBtn.download = "comprovativo.pdf";
+        } else {
+            if (proofUnsupported) proofUnsupported.style.display = 'block';
+            if (downloadProofBtn) downloadProofBtn.download = "comprovativo.bin";
+        }
+        
+        proofModal.style.display = 'flex';
+    };
+
+    const closeProofModal = () => {
+        if (proofModal) proofModal.style.display = 'none';
+    };
+
+    if (closeProofModalBtn) closeProofModalBtn.addEventListener('click', closeProofModal);
+    if (closeProofModalBottomBtn) closeProofModalBottomBtn.addEventListener('click', closeProofModal);
+
+
     // Form Toggle for Accounting
     const toggleFormBtn = document.getElementById('btn-toggle-transaction-form');
     const formPanel = document.getElementById('transaction-form-panel');
@@ -1297,6 +1348,12 @@ window.initAdminPage = function() {
         const countAtualizacoesEl = document.getElementById('count-atualizacoes');
         if (countAtualizacoesEl) {
             countAtualizacoesEl.textContent = (data.update_requests || []).length;
+        }
+        
+        const pendingPagamentos = (data.payment_confirmations || []).filter(c => c.status === 'pendente');
+        const countPagamentosEl = document.getElementById('count-pagamentos');
+        if (countPagamentosEl) {
+            countPagamentosEl.textContent = pendingPagamentos.length;
         }
 
         // B. Render Candidates Table
@@ -1907,6 +1964,101 @@ window.initAdminPage = function() {
                     });
                 }
             });
+        }
+
+        // F. Render Payment Confirmations Table
+        const pagamentosBody = document.getElementById('pagamentos-table-body');
+        if (pagamentosBody) {
+            pagamentosBody.innerHTML = '';
+            if (pendingPagamentos.length === 0) {
+                pagamentosBody.innerHTML = `<tr><td colspan="7" style="padding: 24px; text-align: center; color: var(--text-muted);">Sem comprovativos pendentes de validação.</td></tr>`;
+            } else {
+                pendingPagamentos.forEach(c => {
+                    const tr = document.createElement('tr');
+                    tr.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
+                    
+                    const isPdf = c.comprovativo.startsWith('data:application/pdf');
+                    const docIcon = isPdf ? '📄 PDF' : '🖼️ Imagem';
+                    
+                    tr.innerHTML = `
+                        <td style="padding: 12px 10px; font-family: var(--font-mono); font-weight: 600;">Sócio ${c.numero_socio}</td>
+                        <td style="padding: 12px 10px; font-weight: 600; color: var(--text-primary);">${c.nome_socio}</td>
+                        <td style="padding: 12px 10px; text-align: center; font-family: var(--font-mono);">${c.ano}</td>
+                        <td style="padding: 12px 10px; text-align: right; font-family: var(--font-mono); font-weight: 700; color: var(--accent-primary);">${parseFloat(c.valor).toFixed(2)}€</td>
+                        <td style="padding: 12px 10px; font-family: var(--font-mono);">${c.data_envio}</td>
+                        <td style="padding: 12px 10px; text-align: center;">
+                            <button class="btn btn-secondary btn-view-proof" style="padding: 4px 8px; font-size: 0.78rem; cursor: pointer; outline: none; margin: 0;">
+                                Ver Comprovativo (${docIcon})
+                            </button>
+                        </td>
+                        <td style="padding: 12px 10px; text-align: right; white-space: nowrap;">
+                            <button class="btn btn-primary btn-approve-payment" data-id="${c.id}" style="padding: 4px 8px; font-size: 0.78rem; cursor: pointer; margin-right: 4px; margin: 0;">
+                                Confirmar ✅
+                            </button>
+                            <button class="btn btn-secondary btn-reject-payment" data-id="${c.id}" style="padding: 4px 8px; font-size: 0.78rem; cursor: pointer; border-color: var(--accent-danger); color: var(--accent-danger); background: transparent; margin: 0;">
+                                Rejeitar ❌
+                            </button>
+                        </td>
+                    `;
+                    pagamentosBody.appendChild(tr);
+
+                    // Bind click listeners
+                    const viewBtn = tr.querySelector('.btn-view-proof');
+                    if (viewBtn) {
+                        viewBtn.addEventListener('click', () => {
+                            if (typeof window.openViewProofModal === 'function') {
+                                window.openViewProofModal(c.comprovativo);
+                            }
+                        });
+                    }
+
+                    const approveBtn = tr.querySelector('.btn-approve-payment');
+                    if (approveBtn) {
+                        approveBtn.addEventListener('click', async () => {
+                            if (!confirm(`Deseja aprovar a confirmação de pagamento para a quota de ${c.ano} do Sócio N.º ${c.numero_socio}?\n\nIsto registará a quota como paga e lançará uma receita de ${c.valor}€ na contabilidade.`)) return;
+                            try {
+                                const res = await fetch('/api?action=approve_payment_confirmation', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${authToken}`
+                                    },
+                                    body: JSON.stringify({ id: c.id })
+                                });
+                                const resJson = await res.json();
+                                if (!res.ok) throw new Error(resJson.error || "Erro ao aprovar.");
+                                alert("Pagamento confirmado com sucesso!");
+                                loadDashboardData(authToken);
+                            } catch (err) {
+                                alert(err.message);
+                            }
+                        });
+                    }
+
+                    const rejectBtn = tr.querySelector('.btn-reject-payment');
+                    if (rejectBtn) {
+                        rejectBtn.addEventListener('click', async () => {
+                            if (!confirm(`Deseja rejeitar este comprovativo de pagamento?`)) return;
+                            try {
+                                const res = await fetch('/api?action=reject_payment_confirmation', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${authToken}`
+                                    },
+                                    body: JSON.stringify({ id: c.id })
+                                });
+                                const resJson = await res.json();
+                                if (!res.ok) throw new Error(resJson.error || "Erro ao rejeitar.");
+                                alert("Confirmação de pagamento rejeitada.");
+                                loadDashboardData(authToken);
+                            } catch (err) {
+                                alert(err.message);
+                            }
+                        });
+                    }
+                });
+            }
         }
     }
 
@@ -4227,6 +4379,111 @@ window.initSocioPortal = function() {
         });
     }
 
+    // Modal de Pagamento de Quotas
+    const paymentModal = document.getElementById('socio-payment-modal');
+    const closePaymentModalBtn = document.getElementById('btn-close-payment-modal');
+    const cancelPaymentModalBtn = document.getElementById('btn-cancel-payment-modal');
+    const paymentForm = document.getElementById('socio-payment-form');
+    const paymentFileInput = document.getElementById('socio-payment-file-input');
+    const paymentFileFilename = document.getElementById('socio-payment-file-filename');
+    const paymentProofBase64 = document.getElementById('socio-payment-proof-base64');
+
+    window.openSocioPaymentModal = function(quotaId, ano, valor) {
+        if (!paymentModal) return;
+        document.getElementById('socio-payment-quota-id').value = quotaId;
+        document.getElementById('socio-payment-quota-ano').value = ano;
+        document.getElementById('socio-payment-quota-valor').value = valor;
+        
+        document.getElementById('socio-payment-label-ano').textContent = ano;
+        document.getElementById('socio-payment-label-valor').textContent = parseFloat(valor).toFixed(2) + '€';
+        
+        if (paymentFileFilename) paymentFileFilename.textContent = "Nenhum ficheiro selecionado";
+        if (paymentProofBase64) paymentProofBase64.value = "";
+        if (paymentFileInput) paymentFileInput.value = "";
+        
+        paymentModal.style.display = 'flex';
+    };
+
+    const closePaymentModal = () => {
+        if (paymentModal) paymentModal.style.display = 'none';
+    };
+
+    if (closePaymentModalBtn) closePaymentModalBtn.addEventListener('click', closePaymentModal);
+    if (cancelPaymentModalBtn) cancelPaymentModalBtn.addEventListener('click', closePaymentModal);
+
+    if (paymentFileInput) {
+        paymentFileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Max size check: 3MB
+            if (file.size > 3 * 1024 * 1024) {
+                alert("O ficheiro do comprovativo é demasiado grande. Escolha um ficheiro até 3 MB.");
+                paymentFileInput.value = '';
+                if (paymentFileFilename) paymentFileFilename.textContent = "Nenhum ficheiro selecionado";
+                return;
+            }
+            
+            try {
+                const base64 = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = err => reject(err);
+                    reader.readAsDataURL(file);
+                });
+                
+                if (paymentProofBase64) paymentProofBase64.value = base64;
+                if (paymentFileFilename) paymentFileFilename.textContent = file.name;
+            } catch (err) {
+                alert("Erro ao processar o comprovativo: " + err.message);
+            }
+        });
+    }
+
+    if (paymentForm) {
+        paymentForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem('socio_token');
+            const quotaId = parseInt(document.getElementById('socio-payment-quota-id').value);
+            const ano = parseInt(document.getElementById('socio-payment-quota-ano').value);
+            const valor = parseFloat(document.getElementById('socio-payment-quota-valor').value);
+            const comprovativo = paymentProofBase64.value;
+
+            if (!comprovativo) {
+                alert("Por favor, selecione um comprovativo de pagamento.");
+                return;
+            }
+
+            try {
+                const response = await fetch('/api?action=submit_payment_confirmation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ quota_id: quotaId, ano, valor, comprovativo })
+                });
+
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || "Erro ao submeter comprovativo.");
+
+                closePaymentModal();
+                alert("Comprovativo enviado com sucesso para validação! A abrir e-mail para envio oficial...");
+
+                // Launch mailto
+                const socioName = document.getElementById('socio-profile-name').textContent;
+                const socioNum = document.getElementById('socio-profile-num').textContent;
+                const subject = encodeURIComponent(`Comprovativo de Pagamento - Sócio N.º ${socioNum} - Quota Ano ${ano}`);
+                const body = encodeURIComponent(`À Direção da Associação de Radioamadores Marienses (ARM),\n\nJunto envio o comprovativo de transferência bancária para pagamento da quota de ${ano} (Valor: ${valor.toFixed(2)}€), associada ao sócio N.º ${socioNum} (${socioName}).\n\nPor favor, confirmem a receção e validação do pagamento.\n\nCom os melhores cumprimentos,\n${socioName}`);
+                window.location.href = `mailto:geral@cu1arm.com?subject=${subject}&body=${body}`;
+
+                loadSocioDashboard(token);
+            } catch (err) {
+                alert(err.message);
+            }
+        });
+    }
+
     // Submit profile update request
     if (updateForm) {
         updateForm.addEventListener('submit', async (e) => {
@@ -4455,6 +4712,12 @@ async function loadSocioDashboard(token) {
                     `;
                 } else if (q.pago === 2) {
                     actionBtn = `<span style="font-size: 0.8rem; color: var(--text-muted);">Isenta de Pagamento</span>`;
+                } else if (q.pago === 0) {
+                    actionBtn = `
+                        <button class="btn btn-primary btn-pay-quota" data-quota-id="${q.id}" data-ano="${q.ano}" data-valor="${q.valor}" style="padding: 4px 8px; font-size: 0.75rem; cursor: pointer; outline: none; margin: 0;">
+                            Pagar 💳
+                        </button>
+                    `;
                 }
 
                 tr.innerHTML = `
@@ -4475,6 +4738,15 @@ async function loadSocioDashboard(token) {
                                 window.generateReceiptPDF(socio, q);
                             } else {
                                 alert("Erro: Gerador de PDFs não foi carregado.");
+                            }
+                        });
+                    }
+                } else if (q.pago === 0) {
+                    const payBtn = tr.querySelector('.btn-pay-quota');
+                    if (payBtn) {
+                        payBtn.addEventListener('click', () => {
+                            if (typeof window.openSocioPaymentModal === 'function') {
+                                window.openSocioPaymentModal(q.id, q.ano, q.valor);
                             }
                         });
                     }

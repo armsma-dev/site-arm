@@ -76,6 +76,12 @@ export async function onRequest(context) {
                 return await handleApproveUpdateRequest(request, env.DB, corsHeaders);
             case 'reject_update_request':
                 return await handleRejectUpdateRequest(request, env.DB, corsHeaders);
+            case 'submit_payment_confirmation':
+                return await handleSubmitPaymentConfirmation(request, env.DB, corsHeaders);
+            case 'approve_payment_confirmation':
+                return await handleApprovePaymentConfirmation(request, env.DB, corsHeaders);
+            case 'reject_payment_confirmation':
+                return await handleRejectPaymentConfirmation(request, env.DB, corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: "Invalid action." }), {
                     status: 400,
@@ -185,6 +191,18 @@ async function handleInit(db, headers) {
             dados TEXT,
             status TEXT DEFAULT 'pendente',
             data_submissao TEXT
+        );`,
+        `CREATE TABLE IF NOT EXISTS payment_confirmations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            socio_id INTEGER,
+            numero_socio INTEGER,
+            nome_socio TEXT,
+            quota_id INTEGER,
+            ano INTEGER,
+            valor REAL,
+            comprovativo TEXT,
+            data_envio TEXT,
+            status TEXT DEFAULT 'pendente'
         );`
     ];
 
@@ -416,18 +434,35 @@ async function handleGetData(request, db, headers) {
         );
     `).run();
 
+    await db.prepare(`
+        CREATE TABLE IF NOT EXISTS payment_confirmations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            socio_id INTEGER,
+            numero_socio INTEGER,
+            nome_socio TEXT,
+            quota_id INTEGER,
+            ano INTEGER,
+            valor REAL,
+            comprovativo TEXT,
+            data_envio TEXT,
+            status TEXT DEFAULT 'pendente'
+        );
+    `).run();
+
     const candidatos = (await db.prepare(`SELECT * FROM candidatos ORDER BY data_submissao DESC`).all()).results;
     const socios = (await db.prepare(`SELECT * FROM socios ORDER BY numero_socio ASC`).all()).results;
     const quotas = (await db.prepare(`SELECT * FROM quotas ORDER BY ano DESC`).all()).results;
     const contabilidade = (await db.prepare(`SELECT * FROM contabilidade ORDER BY data DESC`).all()).results;
     const updateRequests = (await db.prepare(`SELECT * FROM update_requests WHERE status = 'pendente' ORDER BY data_submissao DESC`).all()).results;
+    const paymentConfirmations = (await db.prepare(`SELECT * FROM payment_confirmations ORDER BY data_envio DESC`).all()).results;
 
     return new Response(JSON.stringify({
         candidatos,
         socios,
         quotas,
         contabilidade,
-        update_requests: updateRequests
+        update_requests: updateRequests,
+        payment_confirmations: paymentConfirmations
     }), { status: 200, headers });
 }
 
@@ -1231,5 +1266,115 @@ async function autoCreateCurrentYearQuotas(db) {
         }
     }
 }
+
+async function handleSubmitPaymentConfirmation(request, db, headers) {
+    if (request.method !== 'POST') {
+        return new Response(JSON.stringify({ error: "Method not allowed." }), { status: 405, headers });
+    }
+
+    const socioId = await getAuthenticatedSocioId(request, db);
+    if (!socioId) {
+        return new Response(JSON.stringify({ error: "Sessão inválida ou expirada." }), { status: 401, headers });
+    }
+
+    const { quota_id, ano, valor, comprovativo } = await request.json();
+    if (!quota_id || !ano || !valor || !comprovativo) {
+        return new Response(JSON.stringify({ error: "Todos os campos (quota_id, ano, valor, comprovativo) são obrigatórios." }), { status: 400, headers });
+    }
+
+    const member = await db.prepare(`SELECT nome, numero_socio FROM socios WHERE id = ?`).bind(socioId).first();
+    if (!member) {
+        return new Response(JSON.stringify({ error: "Sócio não encontrado." }), { status: 404, headers });
+    }
+
+    const timestamp = new Date().toISOString().split('T')[0];
+
+    await db.prepare(`
+        INSERT INTO payment_confirmations (socio_id, numero_socio, nome_socio, quota_id, ano, valor, comprovativo, data_envio, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pendente')
+    `).bind(socioId, member.numero_socio, member.nome, quota_id, ano, valor, comprovativo, timestamp).run();
+
+    return new Response(JSON.stringify({ message: "Comprovativo submetido com sucesso. Aguarda validação da direção." }), { status: 200, headers });
+}
+
+async function handleApprovePaymentConfirmation(request, db, headers) {
+    if (request.method !== 'POST') {
+        return new Response(JSON.stringify({ error: "Method not allowed." }), { status: 405, headers });
+    }
+
+    if (!(await isAuthenticated(request, db))) {
+        return new Response(JSON.stringify({ error: "Unauthorized." }), { status: 401, headers });
+    }
+
+    const { id } = await request.json();
+    if (!id) {
+        return new Response(JSON.stringify({ error: "Confirmation ID is required." }), { status: 400, headers });
+    }
+
+    const conf = await db.prepare(`SELECT * FROM payment_confirmations WHERE id = ?`).bind(id).first();
+    if (!conf) {
+        return new Response(JSON.stringify({ error: "Confirmation request not found." }), { status: 404, headers });
+    }
+
+    if (conf.status !== 'pendente') {
+        return new Response(JSON.stringify({ error: "Confirmation is already processed." }), { status: 400, headers });
+    }
+
+    const quota = await db.prepare(`SELECT * FROM quotas WHERE id = ?`).bind(conf.quota_id).first();
+    if (!quota) {
+        return new Response(JSON.stringify({ error: "Quota not found." }), { status: 404, headers });
+    }
+
+    if (quota.pago === 1) {
+        await db.prepare(`UPDATE payment_confirmations SET status = 'confirmado' WHERE id = ?`).bind(id).run();
+        return new Response(JSON.stringify({ message: "Quota was already paid. Confirmation approved." }), { status: 200, headers });
+    }
+
+    const maxRecibo = await db.prepare(`SELECT MAX(CAST(numero_recibo AS INTEGER)) as max_rec FROM quotas WHERE numero_recibo != ''`).first();
+    const nextReciboNum = String((maxRecibo.max_rec || 0) + 1).padStart(4, '0');
+    
+    const timestamp = new Date().toISOString().split('T')[0];
+
+    await db.prepare(`
+        UPDATE quotas SET pago = 1, data_pagamento = ?, numero_recibo = ? WHERE id = ?
+    `).bind(timestamp, nextReciboNum, conf.quota_id).run();
+
+    await db.prepare(`
+        INSERT INTO contabilidade (tipo, meio_pagamento, descricao, valor, data, categoria)
+        VALUES ('receita', 'transferencia', ?, ?, ?, 'Quotas')
+    `).bind(
+        `Quota ${conf.ano} - Sócio N.º ${conf.numero_socio} (${conf.nome_socio})`,
+        conf.valor,
+        timestamp
+    ).run();
+
+    await db.prepare(`UPDATE payment_confirmations SET status = 'confirmado' WHERE id = ?`).bind(id).run();
+
+    return new Response(JSON.stringify({ 
+        message: "Payment confirmation approved and quota updated.", 
+        numero_recibo: nextReciboNum, 
+        data_pagamento: timestamp 
+    }), { status: 200, headers });
+}
+
+async function handleRejectPaymentConfirmation(request, db, headers) {
+    if (request.method !== 'POST') {
+        return new Response(JSON.stringify({ error: "Method not allowed." }), { status: 405, headers });
+    }
+
+    if (!(await isAuthenticated(request, db))) {
+        return new Response(JSON.stringify({ error: "Unauthorized." }), { status: 401, headers });
+    }
+
+    const { id } = await request.json();
+    if (!id) {
+        return new Response(JSON.stringify({ error: "Confirmation ID is required." }), { status: 400, headers });
+    }
+
+    await db.prepare(`UPDATE payment_confirmations SET status = 'rejeitado' WHERE id = ?`).bind(id).run();
+
+    return new Response(JSON.stringify({ message: "Payment confirmation request rejected." }), { status: 200, headers });
+}
+
 
 

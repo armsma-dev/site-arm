@@ -119,6 +119,9 @@
                     <button class="btn admin-tab-btn" data-tab="tab-atualizacoes" style="font-size: 0.9rem; padding: 10px 20px; border-radius: 6px 6px 0 0; background: transparent; color: var(--text-secondary); border: none; cursor: pointer; white-space: nowrap;">
                         <span>📝 Pedidos de Alteração (<span id="count-atualizacoes">0</span>)</span>
                     </button>
+                    <button class="btn admin-tab-btn" data-tab="tab-pagamentos" style="font-size: 0.9rem; padding: 10px 20px; border-radius: 6px 6px 0 0; background: transparent; color: var(--text-secondary); border: none; cursor: pointer; white-space: nowrap;">
+                        <span>🧾 Comprovativos (<span id="count-pagamentos">0</span>)</span>
+                    </button>
                 </div>
 
                 <!-- CONTEÚDO DAS TABS -->
@@ -298,6 +301,29 @@
                                 </thead>
                                 <tbody id="atualizacoes-table-body" style="color: var(--text-secondary);">
                                     <tr><td colspan="5" style="padding: 24px; text-align: center; color: var(--text-muted);">Sem pedidos de alteração pendentes.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 6: CONFIRMAÇÕES DE PAGAMENTO -->
+                    <div id="tab-pagamentos" class="admin-tab-pane">
+                        <h3 style="font-size: 1.25rem; margin-bottom: 20px; color: var(--accent-primary);">Confirmações de Pagamento Pendentes</h3>
+                        <div style="overflow-x: auto; width: 100%;">
+                            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                                <thead>
+                                    <tr style="border-bottom: 1.5px solid var(--border-glass); color: var(--text-primary); font-weight: 700;">
+                                        <th style="padding: 12px 10px; width: 100px;">Sócio N.º</th>
+                                        <th style="padding: 12px 10px; width: 180px;">Nome</th>
+                                        <th style="padding: 12px 10px; width: 80px; text-align: center;">Ano</th>
+                                        <th style="padding: 12px 10px; width: 100px; text-align: right;">Valor</th>
+                                        <th style="padding: 12px 10px; width: 120px;">Data Envio</th>
+                                        <th style="padding: 12px 10px; text-align: center; width: 150px;">Comprovativo</th>
+                                        <th style="padding: 12px 10px; text-align: right; width: 180px;">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pagamentos-table-body" style="color: var(--text-secondary);">
+                                    <tr><td colspan="7" style="padding: 24px; text-align: center; color: var(--text-muted);">Sem comprovativos pendentes de validação.</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -489,3 +515,25 @@
                             </form>
                         </div>
                     </div>
+
+    <!-- MODAL DE VISUALIZAÇÃO DE COMPROVATIVO -->
+    <div id="view-proof-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1010; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px);">
+        <div class="card" style="width: 100%; max-width: 600px; padding: 24px; display: flex; flex-direction: column; gap: 20px; background: var(--bg-primary); border: 1px solid var(--border-glass); box-shadow: var(--shadow-lg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-glass); padding-bottom: 12px;">
+                <h3 style="color: var(--accent-primary); margin: 0; font-size: 1.25rem; font-weight: 700; font-family: var(--font-heading);">Ficheiro de Comprovativo</h3>
+                <button id="btn-close-proof-modal" style="background: none; border: none; color: var(--text-secondary); font-size: 1.8rem; cursor: pointer; line-height: 1; outline: none;">&times;</button>
+            </div>
+            <div style="flex-grow: 1; text-align: center; overflow: auto; max-height: 60vh; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 10px;">
+                <img id="view-proof-image" src="" alt="Comprovativo" style="max-width: 100%; height: auto; display: none;">
+                <iframe id="view-proof-pdf" src="" style="width: 100%; height: 500px; border: none; display: none;"></iframe>
+                <div id="view-proof-unsupported" style="display: none; padding: 40px; color: var(--text-secondary);">
+                    Ficheiro não suportado diretamente para pré-visualização. Clique no link para descarregar.
+                </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border-glass); padding-top: 16px;">
+                <a id="btn-download-proof" href="#" download="comprovativo" class="btn btn-secondary" style="margin: 0; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 6px;">📥 Descarregar Ficheiro</a>
+                <button id="btn-close-proof-modal-bottom" class="btn btn-secondary" style="margin: 0; font-size: 0.88rem;">Fechar</button>
+            </div>
+        </div>
+    </div>
+

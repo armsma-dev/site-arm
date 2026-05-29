@@ -351,4 +351,45 @@
         </div>
 
     </div>
+
+    <!-- MODAL DE UPLOAD DE COMPROVATIVO DE PAGAMENTO -->
+    <div id="socio-payment-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px);">
+        <div class="card" style="width: 100%; max-width: 450px; padding: 30px; display: flex; flex-direction: column; gap: 20px; background: var(--bg-secondary); border: 1px solid var(--border-glass); box-shadow: var(--shadow-lg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-glass); padding-bottom: 12px;">
+                <h3 style="color: var(--accent-primary); margin: 0; font-size: 1.2rem; font-weight: 700; font-family: var(--font-heading);">Enviar Comprovativo</h3>
+                <button id="btn-close-payment-modal" style="background: none; border: none; color: var(--text-secondary); font-size: 1.8rem; cursor: pointer; line-height: 1; outline: none;">&times;</button>
+            </div>
+            
+            <form id="socio-payment-form" style="display: flex; flex-direction: column; gap: 16px;">
+                <input type="hidden" id="socio-payment-quota-id">
+                <input type="hidden" id="socio-payment-quota-ano">
+                <input type="hidden" id="socio-payment-quota-valor">
+                
+                <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); padding: 14px; border-radius: 8px; font-size: 0.9rem; color: var(--text-secondary);">
+                    <div>Ano da Quota: <strong id="socio-payment-label-ano" style="color: var(--text-primary); font-family: var(--font-mono); font-size: 0.95rem;">-</strong></div>
+                    <div style="margin-top: 6px;">Valor a Pagar: <strong id="socio-payment-label-valor" style="color: var(--accent-primary); font-family: var(--font-mono); font-size: 0.95rem;">0.00€</strong></div>
+                    <div style="margin-top: 10px; font-size: 0.78rem; color: var(--text-muted); line-height: 1.4;">
+                        Efetue a transferência para o IBAN da ARM e carregue o respetivo comprovativo (ficheiro PDF ou imagem) abaixo.
+                    </div>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Comprovativo de Pagamento</label>
+                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <input type="file" id="socio-payment-file-input" accept="image/*,application/pdf" required style="display: none;">
+                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('socio-payment-file-input').click()" style="padding: 8px 16px; font-size: 0.85rem; cursor: pointer; outline: none; margin: 0;">
+                            Selecionar Ficheiro 📄
+                        </button>
+                        <span id="socio-payment-file-filename" style="font-size: 0.85rem; color: var(--text-muted); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 200px;">Nenhum ficheiro selecionada</span>
+                    </div>
+                    <input type="hidden" id="socio-payment-proof-base64">
+                </div>
+                
+                <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border-glass); padding-top: 16px; margin-top: 8px;">
+                    <button type="button" id="btn-cancel-payment-modal" class="btn btn-secondary" style="padding: 10px 20px; font-size: 0.88rem; cursor: pointer; margin: 0;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="padding: 10px 20px; font-size: 0.88rem; cursor: pointer; margin: 0; font-weight: 600;">Confirmar Envio 🚀</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </section>
