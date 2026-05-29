@@ -268,7 +268,7 @@ async function handleLoginGoogle(request, env, headers) {
     }
 
     // Check if user email is authorized in env
-    const allowedEmailsStr = env.ALLOWED_ADMIN_EMAILS || 'geral@cu1arm.com,hugo.braga@nav.pt';
+    const allowedEmailsStr = env.ALLOWED_ADMIN_EMAILS || 'geral@cu1arm.com,hugo.braga@nav.pt,presidente@cu1arm.com,tesoureiro@cu1arm.com,secretario@cu1arm.com';
     const allowedEmails = allowedEmailsStr.split(',').map(e => e.trim().toLowerCase());
 
     if (!allowedEmails.includes(email.toLowerCase())) {
