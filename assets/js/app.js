@@ -1627,7 +1627,10 @@ window.initAdminPage = function() {
                         : `<span style="font-size: 0.75rem; font-weight: 600; color: var(--accent-danger); background: rgba(255,23,68,0.1); padding: 4px 8px; border-radius: 100px;">Pendente</span>`);
 
                 const action = q.pago === 1
-                    ? `<button class="btn btn-secondary download-receipt-btn" data-quota-id="${q.id}" style="padding: 5px 12px; font-size: 0.75rem; cursor: pointer;">📄 Descarregar Recibo</button>`
+                    ? `<div style="display: flex; gap: 8px; justify-content: flex-end;">
+                         <button class="btn btn-secondary download-receipt-btn" data-quota-id="${q.id}" style="padding: 5px 12px; font-size: 0.75rem; cursor: pointer;">📄 Recibo</button>
+                         <button class="btn btn-secondary remove-pay-quota-btn" data-quota-id="${q.id}" style="padding: 5px 12px; font-size: 0.75rem; cursor: pointer; border-color: var(--accent-danger); color: var(--accent-danger); background: transparent;">✖ Reverter Pagamento</button>
+                       </div>`
                     : (q.pago === 2
                         ? `<button class="btn btn-secondary remove-waive-quota-btn" data-quota-id="${q.id}" style="padding: 5px 12px; font-size: 0.75rem; cursor: pointer; border-color: var(--accent-danger); color: var(--accent-danger); background: transparent;">✖ Reverter Isenção</button>`
                         : `<div style="display: flex; gap: 8px; justify-content: flex-end;">
@@ -1656,6 +1659,29 @@ window.initAdminPage = function() {
                                 window.generateReceiptPDF(member, q);
                             } else {
                                 alert("Erro: Gerador de PDFs não foi carregado.");
+                            }
+                        });
+                    }
+                    const removePayBtn = tr.querySelector('.remove-pay-quota-btn');
+                    if (removePayBtn) {
+                        removePayBtn.addEventListener('click', async () => {
+                            if (!confirm(`Reverter o pagamento da quota ${q.ano} do sócio ${member.nome}? A quota voltará ao estado Pendente, e o movimento de contabilidade correspondente (se existir) será eliminado.`)) return;
+                            try {
+                                const response = await fetch('/api?action=unpay_quota', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${authToken}`
+                                    },
+                                    body: JSON.stringify({ quota_id: q.id })
+                                });
+                                const res = await response.json();
+                                if (!response.ok) throw new Error(res.error || "Erro ao reverter pagamento.");
+                                
+                                alert(`Pagamento revertido com sucesso!`);
+                                loadDashboardData(authToken);
+                            } catch (err) {
+                                alert(err.message);
                             }
                         });
                     }
@@ -3652,6 +3678,30 @@ async function handleMockRequest(action, initOptions) {
 
         localStorage.setItem('arm_mock_db', JSON.stringify(db));
         return response({ message: "Mock Quota exemption reverted." });
+    }
+
+    if (action === 'unpay_quota') {
+        const quotaId = parseInt(body.quota_id);
+        const quota = db.quotas.find(q => q.id === quotaId);
+        if (!quota) return response({ error: "Quota não encontrada." }, 404);
+        
+        if (quota.pago !== 1) return response({ error: "Quota não está paga." }, 400);
+
+        const member = db.socios.find(s => s.id === quota.socio_id);
+        if (member) {
+            const descriptionPattern = `Quota ${quota.ano} - Sócio N.º ${member.numero_socio} (${member.nome})`;
+            const transIndex = db.contabilidade.findIndex(t => t.categoria === 'Quotas' && t.descricao === descriptionPattern);
+            if (transIndex !== -1) {
+                db.contabilidade.splice(transIndex, 1);
+            }
+        }
+
+        quota.pago = 0;
+        quota.data_pagamento = '';
+        quota.numero_recibo = '';
+
+        localStorage.setItem('arm_mock_db', JSON.stringify(db));
+        return response({ message: "Mock Quota payment reverted." });
     }
 
     if (action === 'add_transaction') {
