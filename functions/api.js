@@ -64,6 +64,8 @@ export async function onRequest(context) {
                 return await handleLoginSocioCredentials(request, env.DB, corsHeaders);
             case 'waive_quota':
                 return await handleWaiveQuota(request, env.DB, corsHeaders);
+            case 'unwaive_quota':
+                return await handleUnwaiveQuota(request, env.DB, corsHeaders);
             case 'get_socio_data':
                 return await handleGetSocioData(request, env.DB, corsHeaders);
             case 'update_socio_profile':
@@ -530,6 +532,38 @@ async function handleWaiveQuota(request, db, headers) {
     `).bind(quota_id).run();
 
     return new Response(JSON.stringify({ message: "Quota waived/exempt successfully." }), { status: 200, headers });
+}
+
+async function handleUnwaiveQuota(request, db, headers) {
+    if (request.method !== 'POST') {
+        return new Response(JSON.stringify({ error: "Method not allowed." }), { status: 405, headers });
+    }
+
+    if (!(await isAuthenticated(request, db))) {
+        return new Response(JSON.stringify({ error: "Unauthorized." }), { status: 401, headers });
+    }
+
+    const { quota_id } = await request.json();
+    if (!quota_id) {
+        return new Response(JSON.stringify({ error: "Quota ID is required." }), { status: 400, headers });
+    }
+
+    // Retrieve quota entry details
+    const quota = await db.prepare(`SELECT * FROM quotas WHERE id = ?`).bind(quota_id).first();
+    if (!quota) {
+        return new Response(JSON.stringify({ error: "Quota not found." }), { status: 404, headers });
+    }
+
+    if (quota.pago !== 2) {
+        return new Response(JSON.stringify({ error: "Quota is not waived/exempt." }), { status: 400, headers });
+    }
+
+    // Revert quota status to unpaid/pending (pago = 0)
+    await db.prepare(`
+        UPDATE quotas SET pago = 0 WHERE id = ?
+    `).bind(quota_id).run();
+
+    return new Response(JSON.stringify({ message: "Exemption reverted successfully." }), { status: 200, headers });
 }
 
 // 8. ADD GENERAL TRANSACTION (INCOME / EXPENSE)

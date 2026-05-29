@@ -1629,7 +1629,7 @@ window.initAdminPage = function() {
                 const action = q.pago === 1
                     ? `<button class="btn btn-secondary download-receipt-btn" data-quota-id="${q.id}" style="padding: 5px 12px; font-size: 0.75rem; cursor: pointer;">📄 Descarregar Recibo</button>`
                     : (q.pago === 2
-                        ? `<span style="font-size: 0.8rem; color: var(--text-muted);">Sem ações</span>`
+                        ? `<button class="btn btn-secondary remove-waive-quota-btn" data-quota-id="${q.id}" style="padding: 5px 12px; font-size: 0.75rem; cursor: pointer; border-color: var(--accent-danger); color: var(--accent-danger); background: transparent;">✖ Reverter Isenção</button>`
                         : `<div style="display: flex; gap: 8px; justify-content: flex-end;">
                              <button class="btn btn-primary pay-quota-btn" data-quota-id="${q.id}" style="padding: 5px 12px; font-size: 0.75rem; cursor: pointer;">💰 Marcar Pago</button>
                              <button class="btn btn-secondary waive-quota-btn" data-quota-id="${q.id}" style="padding: 5px 12px; font-size: 0.75rem; cursor: pointer; border-color: var(--text-muted); color: var(--text-muted); background: transparent;">🎁 Isentar</button>
@@ -1713,6 +1713,30 @@ window.initAdminPage = function() {
                                 if (!response.ok) throw new Error(res.error || "Erro ao isentar quota.");
                                 
                                 alert(`Quota isentada/perdoada com sucesso!`);
+                                loadDashboardData(authToken);
+                            } catch (err) {
+                                alert(err.message);
+                            }
+                        });
+                    }
+                } else if (q.pago === 2) {
+                    const removeWaiveBtn = tr.querySelector('.remove-waive-quota-btn');
+                    if (removeWaiveBtn) {
+                        removeWaiveBtn.addEventListener('click', async () => {
+                            if (!confirm(`Reverter a isenção da quota ${q.ano} do sócio ${member.nome}? A quota voltará ao estado Pendente.`)) return;
+                            try {
+                                const response = await fetch('/api?action=unwaive_quota', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${authToken}`
+                                    },
+                                    body: JSON.stringify({ quota_id: q.id })
+                                });
+                                const res = await response.json();
+                                if (!response.ok) throw new Error(res.error || "Erro ao reverter isenção.");
+                                
+                                alert(`Isenção revertida com sucesso!`);
                                 loadDashboardData(authToken);
                             } catch (err) {
                                 alert(err.message);
@@ -3585,6 +3609,19 @@ async function handleMockRequest(action, initOptions) {
 
         localStorage.setItem('arm_mock_db', JSON.stringify(db));
         return response({ message: "Mock Quota waived." });
+    }
+
+    if (action === 'unwaive_quota') {
+        const quotaId = parseInt(body.quota_id);
+        const quota = db.quotas.find(q => q.id === quotaId);
+        if (!quota) return response({ error: "Quota não encontrada." }, 404);
+        
+        if (quota.pago !== 2) return response({ error: "Quota não está isenta." }, 400);
+
+        quota.pago = 0;
+
+        localStorage.setItem('arm_mock_db', JSON.stringify(db));
+        return response({ message: "Mock Quota exemption reverted." });
     }
 
     if (action === 'add_transaction') {
