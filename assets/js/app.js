@@ -3765,7 +3765,8 @@ async function loadSocioDashboard(token) {
                 const tr = document.createElement('tr');
                 tr.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
                 
-                const statusBadge = q.pago === 1 
+                const isPago = q.pago === 1;
+                const statusBadge = isPago 
                     ? `<span style="font-size: 0.75rem; font-weight: 600; color: var(--accent-secondary); background: rgba(0,230,118,0.1); padding: 2px 8px; border-radius: 4px;">Pago</span>`
                     : (q.pago === 2
                         ? `<span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 4px;">Isenta</span>`
