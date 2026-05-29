@@ -157,6 +157,60 @@
                         </div>
                     </div>
 
+                    <!-- 3. DADOS DE RADIOAMADOR & RGPD -->
+                    <div>
+                        <h4 style="color: var(--accent-secondary); font-size: 1.05rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-heading);">
+                            3. Radioamador & Consentimento (RGPD)
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
+                            
+                            <div style="display: flex; flex-direction: column; gap: 6px; grid-column: span 2;">
+                                <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">Perfil QRZ.com (Link Completo)</label>
+                                <input type="url" name="qrz_url" placeholder="https://www.qrz.com/db/INDICATIVO" style="padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem; width: 100%;">
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 6px; grid-column: span 2; margin-top: 10px;">
+                                <label style="font-size: 0.85rem; font-weight: 600; color: var(--accent-secondary); margin-bottom: 5px;">Declarações de Consentimento (RGPD)</label>
+                                
+                                <div style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px;">
+                                    <input type="checkbox" id="rgpd_email" checked style="margin-top: 4px; cursor: pointer; width: 18px; height: 18px;">
+                                    <label for="rgpd_email" style="font-size: 0.85rem; color: var(--text-secondary); cursor: pointer; line-height: 1.4;">
+                                        Autorizo o contacto via <strong>E-mail</strong> para assuntos administrativos da ARM, envio de convocatórias e cobrança de quotas.
+                                    </label>
+                                </div>
+
+                                <div style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px;">
+                                    <input type="checkbox" id="rgpd_sms" checked style="margin-top: 4px; cursor: pointer; width: 18px; height: 18px;">
+                                    <label for="rgpd_sms" style="font-size: 0.85rem; color: var(--text-secondary); cursor: pointer; line-height: 1.4;">
+                                        Autorizo o contacto via <strong>SMS / Telemóvel</strong> para avisos rápidos e notificações da Proteção Civil.
+                                    </label>
+                                </div>
+
+                                <div style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px;">
+                                    <input type="checkbox" id="rgpd_imagemvideo" checked style="margin-top: 4px; cursor: pointer; width: 18px; height: 18px;">
+                                    <label for="rgpd_imagemvideo" style="font-size: 0.85rem; color: var(--text-secondary); cursor: pointer; line-height: 1.4;">
+                                        Autorizo a publicação de <strong>fotografias/vídeos</strong> meus tirados em atividades ou eventos da ARM no site oficial e redes sociais.
+                                    </label>
+                                </div>
+
+                                <div style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 15px;">
+                                    <input type="checkbox" id="rgpd_audio" checked style="margin-top: 4px; cursor: pointer; width: 18px; height: 18px;">
+                                    <label for="rgpd_audio" style="font-size: 0.85rem; color: var(--text-secondary); cursor: pointer; line-height: 1.4;">
+                                        Autorizo a gravação/transmissão de <strong>áudio de rádio</strong> em que participe em eventos organizados pela ARM.
+                                    </label>
+                                </div>
+
+                                <div style="display: flex; align-items: flex-start; gap: 10px; border-top: 1px solid var(--border-glass); padding-top: 15px; margin-top: 5px;">
+                                    <input type="checkbox" id="rgpd_terms" required style="margin-top: 4px; cursor: pointer; width: 18px; height: 18px;">
+                                    <label for="rgpd_terms" style="font-size: 0.85rem; color: var(--text-primary); font-weight: 600; cursor: pointer; line-height: 1.4;">
+                                        Declaro que li e aceito os termos da <a href="#" id="privacy-policy-link" style="color: var(--accent-primary); text-decoration: underline;">Política de Privacidade e Proteção de Dados</a> da ARM. *
+                                    </label>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- BOTÃO DE SUBMISSÃO -->
                     <div style="text-align: center; margin-top: 15px;">
                         <button type="submit" id="signup-submit-btn" class="btn btn-primary" style="padding: 14px 40px; font-size: 1rem; cursor: pointer; border-radius: 8px;">
@@ -170,3 +224,71 @@
             
         </div>
     </section>
+
+    <!-- MODAL: POLÍTICA DE PRIVACIDADE -->
+    <div id="privacy-modal" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(8px); align-items: center; justify-content: center;">
+        <div class="card" style="background: var(--bg-secondary); border: 1px solid var(--border-glass); max-width: 650px; width: 90%; max-height: 80vh; overflow-y: auto; padding: 30px; position: relative; border-radius: 12px; box-shadow: var(--shadow-lg);">
+            <button id="close-privacy-btn" style="position: absolute; top: 15px; right: 15px; background: transparent; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; transition: color 0.2s;">&times;</button>
+            <h3 style="color: var(--accent-primary); margin-bottom: 20px; font-size: 1.35rem; display: flex; align-items: center; gap: 8px;">🛡️ Política de Privacidade e RGPD</h3>
+            <div style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; display: flex; flex-direction: column; gap: 15px; text-align: justify;">
+                <p>Nos termos do Regulamento Geral sobre a Proteção de Dados (RGPD - Regulamento (UE) 2016/679) e da legislação nacional aplicável (Lei n.º 58/2019), a <strong>Associação de Radioamadores Marienses (ARM)</strong> informa que os dados pessoais recolhidos nesta proposta de inscrição serão tratados para as seguintes finalidades:</p>
+                
+                <div>
+                    <h5 style="color: var(--text-primary); font-weight: 600; margin-bottom: 4px;">1. Responsável pelo Tratamento</h5>
+                    <p>O responsável pelo tratamento dos dados é a Direção Administrativa da ARM, com sede em Vila do Porto, Açores. Contacto: geral@cu1arm.com.</p>
+                </div>
+                
+                <div>
+                    <h5 style="color: var(--text-primary); font-weight: 600; margin-bottom: 4px;">2. Finalidade e Base Jurídica</h5>
+                    <p>O tratamento dos seus dados (como Nome, NIF, CC, Contactos, Morada, Foto e Perfil QRZ) destina-se exclusivamente à gestão da sua relação associativa com a ARM, emissão de recibos de quotas, controlo estatístico, comunicações oficiais da direção e envio de informações operacionais/de emergência (Proteção Civil). A base jurídica é a execução de contrato/relação associativa (Art. 6.º, n.º 1, al. b do RGPD) e o consentimento explícito para comunicações adicionais.</p>
+                </div>
+
+                <div>
+                    <h5 style="color: var(--text-primary); font-weight: 600; margin-bottom: 4px;">3. Período de Conservação</h5>
+                    <p>Os seus dados serão conservados de forma segura enquanto mantiver a qualidade de associado ativo. Caso se desassocie, os dados pessoais serão eliminados ou anonimizados, exceto os necessários para cumprimento de obrigações legais/fiscais (como faturas e recibos de quotas).</p>
+                </div>
+
+                <div>
+                    <h5 style="color: var(--text-primary); font-weight: 600; margin-bottom: 4px;">4. Direitos do Titular dos Dados</h5>
+                    <p>Como titular dos dados, goza dos direitos de <strong>Acesso, Retificação, Limitação, Oposição, Portabilidade e Eliminação (Direito ao Esquecimento)</strong>. Poderá exercer qualquer um destes direitos acedendo diretamente ao seu Portal do Sócio na secção dedicada ou enviando um e-mail para geral@cu1arm.com.</p>
+                </div>
+
+                <div>
+                    <h5 style="color: var(--text-primary); font-weight: 600; margin-bottom: 4px;">5. Segurança dos Dados</h5>
+                    <p>A ARM utiliza medidas de segurança técnicas e organizativas (como criptografia local, acessos autenticados e base de dados relacional Cloudflare segura) para proteger os seus dados contra acessos não autorizados ou perda acidental.</p>
+                </div>
+            </div>
+            <div style="text-align: right; margin-top: 25px;">
+                <button id="accept-privacy-modal-btn" class="btn btn-primary" style="padding: 8px 20px; font-size: 0.9rem; cursor: pointer;">Compreendido</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const privacyLink = document.getElementById('privacy-policy-link');
+            const privacyModal = document.getElementById('privacy-modal');
+            const closePrivacyBtn = document.getElementById('close-privacy-btn');
+            const acceptPrivacyBtn = document.getElementById('accept-privacy-modal-btn');
+            
+            if (privacyLink && privacyModal) {
+                privacyLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    privacyModal.style.display = 'flex';
+                });
+            }
+            
+            const closeModal = () => {
+                if (privacyModal) privacyModal.style.display = 'none';
+            };
+            
+            if (closePrivacyBtn) closePrivacyBtn.addEventListener('click', closeModal);
+            if (acceptPrivacyBtn) acceptPrivacyBtn.addEventListener('click', closeModal);
+            
+            if (privacyModal) {
+                privacyModal.addEventListener('click', (e) => {
+                    if (e.target === privacyModal) closeModal();
+                });
+            }
+        });
+    </script>

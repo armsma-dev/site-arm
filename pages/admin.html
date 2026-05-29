@@ -378,6 +378,33 @@
                 </div>
 
                 <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Perfil QRZ.com (URL)</label>
+                    <input type="url" id="edit-socio-qrz" placeholder="https://www.qrz.com/db/INDICATIVO" style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem; width: 100%;">
+                </div>
+
+                <div style="border-top: 1px solid var(--border-glass); padding-top: 12px; margin-top: 5px;">
+                    <label style="font-size: 0.85rem; color: var(--accent-secondary); font-weight: 700; display: block; margin-bottom: 8px; text-transform: uppercase;">Consentimentos RGPD</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="edit-socio-rgpd-email" style="cursor: pointer; width: 15px; height: 15px;">
+                            <label for="edit-socio-rgpd-email" style="font-size: 0.78rem; color: var(--text-secondary); cursor: pointer;">Contacto por E-mail</label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="edit-socio-rgpd-sms" style="cursor: pointer; width: 15px; height: 15px;">
+                            <label for="edit-socio-rgpd-sms" style="font-size: 0.78rem; color: var(--text-secondary); cursor: pointer;">Contacto por SMS</label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="edit-socio-rgpd-image" style="cursor: pointer; width: 15px; height: 15px;">
+                            <label for="edit-socio-rgpd-image" style="font-size: 0.78rem; color: var(--text-secondary); cursor: pointer;">Uso de Imagem/Vídeo</label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="edit-socio-rgpd-audio" style="cursor: pointer; width: 15px; height: 15px;">
+                            <label for="edit-socio-rgpd-audio" style="font-size: 0.78rem; color: var(--text-secondary); cursor: pointer;">Uso de Áudio/Rádio</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 10px;">
                     <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Foto de Perfil (Upload)</label>
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <img id="edit-socio-photo-preview" src="assets/images/logo2-65x121.png" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-secondary); background: rgba(0,0,0,0.2);">

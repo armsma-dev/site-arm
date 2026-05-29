@@ -114,7 +114,12 @@ async function handleInit(db, headers) {
             telefone TEXT,
             email TEXT,
             data_submissao TEXT,
-            fotografia TEXT
+            fotografia TEXT,
+            qrz_url TEXT,
+            rgpd_email INTEGER DEFAULT 1,
+            rgpd_sms INTEGER DEFAULT 1,
+            rgpd_imagemvideo INTEGER DEFAULT 1,
+            rgpd_audio INTEGER DEFAULT 1
         );`,
         `CREATE TABLE IF NOT EXISTS socios (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -138,7 +143,12 @@ async function handleInit(db, headers) {
             email TEXT,
             estado TEXT,
             data_admissao TEXT,
-            fotografia TEXT
+            fotografia TEXT,
+            qrz_url TEXT,
+            rgpd_email INTEGER DEFAULT 1,
+            rgpd_sms INTEGER DEFAULT 1,
+            rgpd_imagemvideo INTEGER DEFAULT 1,
+            rgpd_audio INTEGER DEFAULT 1
         );`,
         `CREATE TABLE IF NOT EXISTS quotas (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -189,6 +199,28 @@ async function handleInit(db, headers) {
         // Coluna provavelmente já existe, ignorar
     }
 
+    // Migrações de schema para QRZ e RGPD em base de dados existente
+    const migrations = [
+        "ALTER TABLE socios ADD COLUMN qrz_url TEXT",
+        "ALTER TABLE socios ADD COLUMN rgpd_email INTEGER DEFAULT 1",
+        "ALTER TABLE socios ADD COLUMN rgpd_sms INTEGER DEFAULT 1",
+        "ALTER TABLE socios ADD COLUMN rgpd_imagemvideo INTEGER DEFAULT 1",
+        "ALTER TABLE socios ADD COLUMN rgpd_audio INTEGER DEFAULT 1",
+        "ALTER TABLE candidatos ADD COLUMN qrz_url TEXT",
+        "ALTER TABLE candidatos ADD COLUMN rgpd_email INTEGER DEFAULT 1",
+        "ALTER TABLE candidatos ADD COLUMN rgpd_sms INTEGER DEFAULT 1",
+        "ALTER TABLE candidatos ADD COLUMN rgpd_imagemvideo INTEGER DEFAULT 1",
+        "ALTER TABLE candidatos ADD COLUMN rgpd_audio INTEGER DEFAULT 1"
+    ];
+    
+    for (const sql of migrations) {
+        try {
+            await db.prepare(sql).run();
+        } catch (e) {
+            // Ignorar se a coluna já existe
+        }
+    }
+
     return new Response(JSON.stringify({ message: "D1 database initialized successfully." }), {
         status: 200,
         headers
@@ -215,11 +247,17 @@ async function handleRegister(request, db, headers) {
     await db.prepare(`
         INSERT INTO candidatos (
             nome, nif, cartao_cidadao, sexo, data_nascimento, iban, profissao, habilitacoes, 
-            pais, cod_postal, morada, freguesia, concelho, distrito, telemovel, telefone, email, data_submissao, fotografia
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            pais, cod_postal, morada, freguesia, concelho, distrito, telemovel, telefone, email, data_submissao, fotografia,
+            qrz_url, rgpd_email, rgpd_sms, rgpd_imagemvideo, rgpd_audio
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
         data.nome, data.nif, data.cartao_cidadao, data.sexo, data.data_nascimento, data.iban, data.profissao, data.habilitacoes,
-        data.pais, data.cod_postal, data.morada, data.freguesia, data.concelho, data.distrito, data.telemovel, data.telefone || '', data.email, timestamp, data.fotografia
+        data.pais, data.cod_postal, data.morada, data.freguesia, data.concelho, data.distrito, data.telemovel, data.telefone || '', data.email, timestamp, data.fotografia,
+        data.qrz_url || '',
+        data.rgpd_email !== undefined ? data.rgpd_email : 1,
+        data.rgpd_sms !== undefined ? data.rgpd_sms : 1,
+        data.rgpd_imagemvideo !== undefined ? data.rgpd_imagemvideo : 1,
+        data.rgpd_audio !== undefined ? data.rgpd_audio : 1
     ).run();
 
     return new Response(JSON.stringify({ message: "Application submitted successfully." }), { status: 200, headers });
@@ -423,11 +461,17 @@ async function handleApproveMember(request, db, headers) {
     await db.prepare(`
         INSERT INTO socios (
             numero_socio, nome, nif, cartao_cidadao, sexo, data_nascimento, iban, profissao, habilitacoes,
-            pais, cod_postal, morada, freguesia, concelho, distrito, telemovel, telefone, email, estado, data_admissao, fotografia
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            pais, cod_postal, morada, freguesia, concelho, distrito, telemovel, telefone, email, estado, data_admissao, fotografia,
+            qrz_url, rgpd_email, rgpd_sms, rgpd_imagemvideo, rgpd_audio
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
         nextSocioNum, candidate.nome, candidate.nif, candidate.cartao_cidadao, candidate.sexo, candidate.data_nascimento, candidate.iban, candidate.profissao, candidate.habilitacoes,
-        candidate.pais, candidate.cod_postal, candidate.morada, candidate.freguesia, candidate.concelho, candidate.distrito, candidate.telemovel, candidate.telefone, candidate.email, 'Ativo', timestamp, candidate.fotografia
+        candidate.pais, candidate.cod_postal, candidate.morada, candidate.freguesia, candidate.concelho, candidate.distrito, candidate.telemovel, candidate.telefone, candidate.email, 'Ativo', timestamp, candidate.fotografia,
+        candidate.qrz_url || '',
+        candidate.rgpd_email !== undefined ? candidate.rgpd_email : 1,
+        candidate.rgpd_sms !== undefined ? candidate.rgpd_sms : 1,
+        candidate.rgpd_imagemvideo !== undefined ? candidate.rgpd_imagemvideo : 1,
+        candidate.rgpd_audio !== undefined ? candidate.rgpd_audio : 1
     ).run();
 
     // Get the newly created member ID
@@ -689,12 +733,18 @@ async function handleImportMembers(request, db, headers) {
         await db.prepare(`
             INSERT INTO socios (
                 numero_socio, nome, nif, cartao_cidadao, sexo, data_nascimento, iban, profissao, 
-                habilitacoes, pais, cod_postal, morada, freguesia, concelho, distrito, telemovel, telefone, email, estado, data_admissao, fotografia
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                habilitacoes, pais, cod_postal, morada, freguesia, concelho, distrito, telemovel, telefone, email, estado, data_admissao, fotografia,
+                qrz_url, rgpd_email, rgpd_sms, rgpd_imagemvideo, rgpd_audio
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).bind(
             num, member.nome, member.nif, member.cartao_cidadao, member.sexo, member.data_nascimento, member.iban, member.profissao,
             member.habilitacoes, member.pais, member.cod_postal, member.morada, member.freguesia, member.concelho, member.distrito, 
-            member.telemovel, member.telefone || '', member.email, member.estado, member.data_admissao, member.fotografia
+            member.telemovel, member.telefone || '', member.email, member.estado, member.data_admissao, member.fotografia,
+            member.qrz_url || '',
+            member.rgpd_email !== undefined ? member.rgpd_email : 1,
+            member.rgpd_sms !== undefined ? member.rgpd_sms : 1,
+            member.rgpd_imagemvideo !== undefined ? member.rgpd_imagemvideo : 1,
+            member.rgpd_audio !== undefined ? member.rgpd_audio : 1
         ).run();
 
         // Get inserted row ID to create quota
@@ -723,7 +773,7 @@ async function handleEditMember(request, db, headers) {
     }
 
     const data = await request.json();
-    const { id, numero_socio, estado, nome, email, telemovel, nif, cartao_cidadao, morada, iban, data_admissao, fotografia } = data;
+    const { id, numero_socio, estado, nome, email, telemovel, nif, cartao_cidadao, morada, iban, data_admissao, fotografia, qrz_url, rgpd_email, rgpd_sms, rgpd_imagemvideo, rgpd_audio } = data;
 
     if (!id || !numero_socio || !estado || !nome || !email || !telemovel || !nif || !cartao_cidadao || !morada || !data_admissao) {
         return new Response(JSON.stringify({ error: "Mandatory member fields are missing." }), { status: 400, headers });
@@ -750,7 +800,12 @@ async function handleEditMember(request, db, headers) {
             morada = ?,
             iban = ?,
             data_admissao = ?,
-            fotografia = ?
+            fotografia = ?,
+            qrz_url = ?,
+            rgpd_email = ?,
+            rgpd_sms = ?,
+            rgpd_imagemvideo = ?,
+            rgpd_audio = ?
         WHERE id = ?
     `).bind(
         numero_socio,
@@ -764,6 +819,11 @@ async function handleEditMember(request, db, headers) {
         iban || '',
         data_admissao,
         fotografia || '',
+        qrz_url || '',
+        rgpd_email !== undefined ? rgpd_email : 1,
+        rgpd_sms !== undefined ? rgpd_sms : 1,
+        rgpd_imagemvideo !== undefined ? rgpd_imagemvideo : 1,
+        rgpd_audio !== undefined ? rgpd_audio : 1,
         id
     ).run();
 
@@ -1116,13 +1176,18 @@ async function handleApproveUpdateRequest(request, db, headers) {
             telemovel = ?, telefone = ?, email = ?, iban = ?,
             profissao = ?, habilitacoes = ?, nif = ?, cartao_cidadao = ?,
             morada = ?, cod_postal = ?, freguesia = ?, concelho = ?,
-            distrito = ?, pais = ?, fotografia = ?
+            distrito = ?, pais = ?, fotografia = ?, qrz_url = ?,
+            rgpd_email = ?, rgpd_sms = ?, rgpd_imagemvideo = ?, rgpd_audio = ?
         WHERE id = ?
     `).bind(
         dados.telemovel, dados.telefone, dados.email, dados.iban,
         dados.profissao, dados.habilitacoes, dados.nif, dados.cartao_cidadao,
         dados.morada, dados.cod_postal, dados.freguesia, dados.concelho,
-        dados.distrito, dados.pais, dados.fotografia,
+        dados.distrito, dados.pais, dados.fotografia, dados.qrz_url || '',
+        dados.rgpd_email !== undefined ? dados.rgpd_email : 1,
+        dados.rgpd_sms !== undefined ? dados.rgpd_sms : 1,
+        dados.rgpd_imagemvideo !== undefined ? dados.rgpd_imagemvideo : 1,
+        dados.rgpd_audio !== undefined ? dados.rgpd_audio : 1,
         updateReq.socio_id
     ).run();
 

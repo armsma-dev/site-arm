@@ -112,6 +112,10 @@
                             <span style="color: var(--text-muted);">E-mail</span>
                             <strong id="socio-profile-email" style="color: var(--text-primary);">-</strong>
                         </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-muted);">Perfil QRZ</span>
+                            <strong id="socio-profile-qrz" style="color: var(--text-primary);">-</strong>
+                        </div>
                         <div style="display: flex; justify-content: space-between; flex-direction: column; gap: 4px;">
                             <span style="color: var(--text-muted);">Morada</span>
                             <strong id="socio-profile-address" style="color: var(--text-primary); line-height: 1.4;">-</strong>
@@ -120,6 +124,43 @@
                             <span style="color: var(--text-muted);">Admissão</span>
                             <strong id="socio-profile-admissao" style="color: var(--text-primary);">-</strong>
                         </div>
+                        
+                        <div style="border-top: 1px solid var(--border-glass); margin-top: 10px; padding-top: 10px;">
+                            <span style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; display: block; margin-bottom: 8px; letter-spacing: 0.05em; font-weight: 600;">Consentimentos RGPD</span>
+                            <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.8rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>E-mail Administrativo</span>
+                                    <span id="socio-profile-rgpd-email" style="font-weight: bold;">-</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>Contacto SMS</span>
+                                    <span id="socio-profile-rgpd-sms" style="font-weight: bold;">-</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>Uso de Imagem/Vídeo</span>
+                                    <span id="socio-profile-rgpd-image" style="font-weight: bold;">-</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>Uso de Áudio/Rádio</span>
+                                    <span id="socio-profile-rgpd-audio" style="font-weight: bold;">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card RGPD Direitos -->
+                <div class="card" style="padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+                    <h3 style="color: var(--accent-secondary); margin: 0; font-size: 1rem; font-weight: 700; border-bottom: 1px solid var(--border-glass); padding-bottom: 10px;">Direitos de Privacidade (RGPD)</h3>
+                    <p style="color: var(--text-muted); font-size: 0.8rem; line-height: 1.4; margin: 0;">Nos termos do regulamento nacional e do RGPD (Art. 17 e 20), pode exportar os seus dados pessoais registados no nosso sistema ou solicitar a sua eliminação permanente.</p>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 5px;">
+                        <button id="socio-export-data-btn" class="btn btn-secondary" style="width: 100%; padding: 8px 12px; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0;">
+                            📥 Exportar Meus Dados (JSON)
+                        </button>
+                        <button id="socio-delete-request-btn" class="btn btn-secondary" style="width: 100%; padding: 8px 12px; font-size: 0.8rem; cursor: pointer; border-color: var(--accent-danger); color: var(--accent-danger); display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0; background: transparent;">
+                            ⚠️ Solicitar Eliminação de Ficha
+                        </button>
                     </div>
                 </div>
 
@@ -154,7 +195,7 @@
                 <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Atualize a informação da sua ficha de sócio nos campos abaixo. O seu pedido será submetido e ficará pendente de validação pela direção antes de ser definitivamente gravado.</p>
                 
                 <form id="socio-update-form" style="display: flex; flex-direction: column; gap: 16px;">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
                         <div style="display: flex; flex-direction: column; gap: 6px;">
                             <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Telemóvel</label>
                             <input type="text" id="socio-update-mobile" style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem;">
@@ -170,6 +211,10 @@
                         <div style="display: flex; flex-direction: column; gap: 6px;">
                             <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">IBAN</label>
                             <input type="text" id="socio-update-iban" placeholder="PT50..." style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Perfil QRZ (URL)</label>
+                            <input type="url" id="socio-update-qrz" placeholder="https://www.qrz.com/db/INDICATIVO" style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem;">
                         </div>
                     </div>
                     
@@ -222,7 +267,38 @@
                         </div>
                     </div>
 
-                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <!-- Consentimentos de Privacidade (RGPD) -->
+                    <div style="border-top: 1px solid var(--border-glass); padding-top: 16px; margin-top: 8px;">
+                        <h4 style="color: var(--accent-secondary); font-size: 0.9rem; font-weight: 700; margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 0.05em;">Definições de Privacidade e RGPD</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+                            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                <input type="checkbox" id="socio-update-rgpd-email" style="margin-top: 3px; cursor: pointer; width: 16px; height: 16px;">
+                                <label for="socio-update-rgpd-email" style="font-size: 0.8rem; color: var(--text-secondary); cursor: pointer; line-height: 1.4;">
+                                    Autorizo contacto por <strong>E-mail</strong> para convocatórias, quotas e avisos.
+                                </label>
+                            </div>
+                            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                <input type="checkbox" id="socio-update-rgpd-sms" style="margin-top: 3px; cursor: pointer; width: 16px; height: 16px;">
+                                <label for="socio-update-rgpd-sms" style="font-size: 0.8rem; color: var(--text-secondary); cursor: pointer; line-height: 1.4;">
+                                    Autorizo contacto por <strong>SMS / Telemóvel</strong> para avisos de emergência.
+                                </label>
+                            </div>
+                            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                <input type="checkbox" id="socio-update-rgpd-image" style="margin-top: 3px; cursor: pointer; width: 16px; height: 16px;">
+                                <label for="socio-update-rgpd-image" style="font-size: 0.8rem; color: var(--text-secondary); cursor: pointer; line-height: 1.4;">
+                                    Autorizo publicação de <strong>fotos/vídeos</strong> de eventos no site.
+                                </label>
+                            </div>
+                            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                <input type="checkbox" id="socio-update-rgpd-audio" style="margin-top: 3px; cursor: pointer; width: 16px; height: 16px;">
+                                <label for="socio-update-rgpd-audio" style="font-size: 0.8rem; color: var(--text-secondary); cursor: pointer; line-height: 1.4;">
+                                    Autorizo gravação de <strong>áudio / transmissões rádio</strong> em eventos da ARM.
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 16px;">
                         <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Foto de Perfil (Upload)</label>
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <img id="socio-update-photo-preview" src="assets/images/logo2-65x121.png" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-secondary); background: rgba(0,0,0,0.2);">

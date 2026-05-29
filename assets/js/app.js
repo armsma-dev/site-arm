@@ -495,6 +495,12 @@ window.initSignupForm = function() {
                 throw new Error("A fotografia de passe é obrigatória.");
             }
 
+            // Capture GDPR consent checkbox states
+            data['rgpd_email'] = document.getElementById('rgpd_email').checked ? 1 : 0;
+            data['rgpd_sms'] = document.getElementById('rgpd_sms').checked ? 1 : 0;
+            data['rgpd_imagemvideo'] = document.getElementById('rgpd_imagemvideo').checked ? 1 : 0;
+            data['rgpd_audio'] = document.getElementById('rgpd_audio').checked ? 1 : 0;
+
             const response = await fetch('/api?action=register', {
                 method: 'POST',
                 headers: {
@@ -1020,7 +1026,12 @@ window.initAdminPage = function() {
                 morada: document.getElementById('edit-socio-morada').value,
                 iban: document.getElementById('edit-socio-iban').value,
                 data_admissao: document.getElementById('edit-socio-admissao').value,
-                fotografia: document.getElementById('edit-socio-photo').value
+                fotografia: document.getElementById('edit-socio-photo').value,
+                qrz_url: document.getElementById('edit-socio-qrz') ? document.getElementById('edit-socio-qrz').value.trim() : '',
+                rgpd_email: document.getElementById('edit-socio-rgpd-email') && document.getElementById('edit-socio-rgpd-email').checked ? 1 : 0,
+                rgpd_sms: document.getElementById('edit-socio-rgpd-sms') && document.getElementById('edit-socio-rgpd-sms').checked ? 1 : 0,
+                rgpd_imagemvideo: document.getElementById('edit-socio-rgpd-image') && document.getElementById('edit-socio-rgpd-image').checked ? 1 : 0,
+                rgpd_audio: document.getElementById('edit-socio-rgpd-audio') && document.getElementById('edit-socio-rgpd-audio').checked ? 1 : 0
             };
 
             try {
@@ -1172,6 +1183,7 @@ window.initAdminPage = function() {
         const freguesia = getVal(['freguesia', 'parish']) || 'Vila do Porto';
         const concelho = getVal(['concelho', 'municipio']) || 'Vila do Porto';
         const distrito = getVal(['distrito', 'regiao']) || 'Açores';
+        const qrz_url = getVal(['qrz', 'qrzurl', 'outro1', 'qrz_url']);
 
         // Mapeamento de estado
         let mappedEstado = 'Ativo';
@@ -1200,7 +1212,12 @@ window.initAdminPage = function() {
             freguesia,
             concelho,
             distrito,
-            fotografia: 'assets/images/logo2-65x121.png'
+            fotografia: 'assets/images/logo2-65x121.png',
+            qrz_url: qrz_url || '',
+            rgpd_email: 1,
+            rgpd_sms: 1,
+            rgpd_imagemvideo: 1,
+            rgpd_audio: 1
         };
     }
 
@@ -1295,6 +1312,13 @@ window.initAdminPage = function() {
                     <td style="padding: 12px 10px;">
                         <strong style="color: var(--text-primary); font-size: 0.95rem;">${c.nome}</strong><br>
                         <span style="font-size: 0.8rem; color: var(--text-muted);">${c.email} | ${c.telemovel}</span>
+                        ${c.qrz_url ? `<br><span style="font-size: 0.78rem;"><a href="${c.qrz_url.startsWith('http') ? c.qrz_url : 'https://' + c.qrz_url}" target="_blank" style="color: var(--accent-primary); text-decoration: underline; font-weight: 600;">QRZ: ${c.qrz_url.split('/').pop()} 🌐</a></span>` : ''}
+                        <div style="display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap;">
+                            <span style="font-size: 0.65rem; padding: 1px 4px; border-radius: 3px; ${c.rgpd_email === 1 || c.rgpd_email === true || c.rgpd_email === "1" ? 'color: var(--accent-secondary); background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.15);' : 'color: var(--accent-danger); background: rgba(255,23,68,0.1); border: 1px solid rgba(255,23,68,0.15);'}" title="${c.rgpd_email === 1 || c.rgpd_email === true || c.rgpd_email === "1" ? 'Autorizou contacto por E-mail' : 'Não autorizou contacto por E-mail'}">E-mail</span>
+                            <span style="font-size: 0.65rem; padding: 1px 4px; border-radius: 3px; ${c.rgpd_sms === 1 || c.rgpd_sms === true || c.rgpd_sms === "1" ? 'color: var(--accent-secondary); background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.15);' : 'color: var(--accent-danger); background: rgba(255,23,68,0.1); border: 1px solid rgba(255,23,68,0.15);'}" title="${c.rgpd_sms === 1 || c.rgpd_sms === true || c.rgpd_sms === "1" ? 'Autorizou contacto por SMS' : 'Não autorizou contacto por SMS'}">SMS</span>
+                            <span style="font-size: 0.65rem; padding: 1px 4px; border-radius: 3px; ${c.rgpd_imagemvideo === 1 || c.rgpd_imagemvideo === true || c.rgpd_imagemvideo === "1" ? 'color: var(--accent-secondary); background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.15);' : 'color: var(--accent-danger); background: rgba(255,23,68,0.1); border: 1px solid rgba(255,23,68,0.15);'}" title="${c.rgpd_imagemvideo === 1 || c.rgpd_imagemvideo === true || c.rgpd_imagemvideo === "1" ? 'Autorizou fotos/vídeos' : 'Não autorizou fotos/vídeos'}">Foto/Vídeo</span>
+                            <span style="font-size: 0.65rem; padding: 1px 4px; border-radius: 3px; ${c.rgpd_audio === 1 || c.rgpd_audio === true || c.rgpd_audio === "1" ? 'color: var(--accent-secondary); background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.15);' : 'color: var(--accent-danger); background: rgba(255,23,68,0.1); border: 1px solid rgba(255,23,68,0.15);'}" title="${c.rgpd_audio === 1 || c.rgpd_audio === true || c.rgpd_audio === "1" ? 'Autorizou áudio/rádio' : 'Não autorizou áudio/rádio'}">Áudio/Rádio</span>
+                        </div>
                     </td>
                     <td style="padding: 12px 10px;">
                         <span style="font-family: var(--font-mono); font-size: 0.8rem;">CC: ${c.cartao_cidadao}</span><br>
@@ -1383,7 +1407,12 @@ window.initAdminPage = function() {
                         telemovel: "Telemóvel", telefone: "Telefone", email: "E-mail", iban: "IBAN",
                         profissao: "Profissão", habilitacoes: "Habilitações", nif: "NIF", cartao_cidadao: "C. Cidadão",
                         morada: "Morada", cod_postal: "Cód. Postal", freguesia: "Freguesia", concelho: "Concelho",
-                        distrito: "Distrito", pais: "País", fotografia: "Foto (Upload)"
+                        distrito: "Distrito", pais: "País", fotografia: "Foto (Upload)",
+                        qrz_url: "Perfil QRZ (URL)",
+                        rgpd_email: "RGPD: Contacto E-mail",
+                        rgpd_sms: "RGPD: Contacto SMS",
+                        rgpd_imagemvideo: "RGPD: Imagem/Vídeo",
+                        rgpd_audio: "RGPD: Áudio/Rádio"
                     };
                     
                     for (const [key, val] of Object.entries(dados)) {
@@ -1398,6 +1427,12 @@ window.initAdminPage = function() {
                                     ? `<img src="${val}" style="width: 32px; height: 32px; object-fit: cover; border-radius: 50%; border: 1px solid var(--accent-secondary); vertical-align: middle;" title="Nova foto proposta">`
                                     : `<span style="font-size:0.75rem; color:var(--text-muted);">sem foto</span>`;
                                 diffHtml += `<div style="display: flex; align-items: center; gap: 6px; margin: 4px 0;"><strong>${label}:</strong> ${oldImg} ➔ ${newImg}</div>`;
+                            } else if (key.startsWith('rgpd_')) {
+                                const oldText = (oldVal === 1 || oldVal === true || oldVal === "1") ? "Autorizado" : "Não Autorizado";
+                                const newText = (val === 1 || val === true || val === "1") ? "Autorizado" : "Não Autorizado";
+                                const oldColor = oldText === "Autorizado" ? "var(--accent-secondary)" : "var(--accent-danger)";
+                                const newColor = newText === "Autorizado" ? "var(--accent-secondary)" : "var(--accent-danger)";
+                                diffHtml += `<div><strong>${label}:</strong> <span style="color:${oldColor}; text-decoration:line-through; font-size:0.75rem;">${oldText}</span> ➔ <span style="color:${newColor}; font-weight:600; font-size:0.75rem;">${newText}</span></div>`;
                             } else {
                                 diffHtml += `<div><strong>${label}:</strong> <span style="color:var(--accent-danger); text-decoration:line-through;">${oldVal || '(vazio)'}</span> ➔ <span style="color:var(--accent-secondary); font-weight:600;">${val || '(vazio)'}</span></div>`;
                             }
@@ -1493,6 +1528,13 @@ window.initAdminPage = function() {
                     <td style="padding: 12px 10px;">
                         <strong style="color: var(--text-primary);">${s.nome}</strong><br>
                         <span style="font-size: 0.8rem; color: var(--text-muted);">${s.email}</span>
+                        ${s.qrz_url ? `<br><span style="font-size: 0.78rem;"><a href="${s.qrz_url.startsWith('http') ? s.qrz_url : 'https://' + s.qrz_url}" target="_blank" style="color: var(--accent-primary); text-decoration: underline; font-weight: 600;">QRZ: ${s.qrz_url.split('/').pop()} 🌐</a></span>` : ''}
+                        <div style="display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap;">
+                            <span style="font-size: 0.65rem; padding: 1px 4px; border-radius: 3px; ${s.rgpd_email === 1 || s.rgpd_email === true || s.rgpd_email === "1" ? 'color: var(--accent-secondary); background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.15);' : 'color: var(--accent-danger); background: rgba(255,23,68,0.1); border: 1px solid rgba(255,23,68,0.15);'}" title="${s.rgpd_email === 1 || s.rgpd_email === true || s.rgpd_email === "1" ? 'Autorizou contacto por E-mail' : 'Não autorizou contacto por E-mail'}">E-mail</span>
+                            <span style="font-size: 0.65rem; padding: 1px 4px; border-radius: 3px; ${s.rgpd_sms === 1 || s.rgpd_sms === true || s.rgpd_sms === "1" ? 'color: var(--accent-secondary); background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.15);' : 'color: var(--accent-danger); background: rgba(255,23,68,0.1); border: 1px solid rgba(255,23,68,0.15);'}" title="${s.rgpd_sms === 1 || s.rgpd_sms === true || s.rgpd_sms === "1" ? 'Autorizou contacto por SMS' : 'Não autorizou contacto por SMS'}">SMS</span>
+                            <span style="font-size: 0.65rem; padding: 1px 4px; border-radius: 3px; ${s.rgpd_imagemvideo === 1 || s.rgpd_imagemvideo === true || s.rgpd_imagemvideo === "1" ? 'color: var(--accent-secondary); background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.15);' : 'color: var(--accent-danger); background: rgba(255,23,68,0.1); border: 1px solid rgba(255,23,68,0.15);'}" title="${s.rgpd_imagemvideo === 1 || s.rgpd_imagemvideo === true || s.rgpd_imagemvideo === "1" ? 'Autorizou fotos/vídeos' : 'Não autorizou fotos/vídeos'}">Foto/Vídeo</span>
+                            <span style="font-size: 0.65rem; padding: 1px 4px; border-radius: 3px; ${s.rgpd_audio === 1 || s.rgpd_audio === true || s.rgpd_audio === "1" ? 'color: var(--accent-secondary); background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.15);' : 'color: var(--accent-danger); background: rgba(255,23,68,0.1); border: 1px solid rgba(255,23,68,0.15);'}" title="${s.rgpd_audio === 1 || s.rgpd_audio === true || s.rgpd_audio === "1" ? 'Autorizou áudio/rádio' : 'Não autorizou áudio/rádio'}">Áudio/Rádio</span>
+                        </div>
                     </td>
                     <td style="padding: 12px 10px; font-family: var(--font-mono); font-size: 0.8rem;">${s.nif}</td>
                     <td style="padding: 12px 10px; font-family: var(--font-mono); font-size: 0.8rem;">${s.telemovel}</td>
@@ -1562,6 +1604,18 @@ window.initAdminPage = function() {
                         document.getElementById('edit-socio-morada').value = s.morada || '';
                         document.getElementById('edit-socio-iban').value = s.iban || '';
                         document.getElementById('edit-socio-admissao').value = s.data_admissao || '';
+                        
+                        const editQrz = document.getElementById('edit-socio-qrz');
+                        if (editQrz) editQrz.value = s.qrz_url || '';
+
+                        const setEditRgpd = (id, val) => {
+                            const el = document.getElementById(id);
+                            if (el) el.checked = (val === 1 || val === true || val === "1");
+                        };
+                        setEditRgpd('edit-socio-rgpd-email', s.rgpd_email);
+                        setEditRgpd('edit-socio-rgpd-sms', s.rgpd_sms);
+                        setEditRgpd('edit-socio-rgpd-image', s.rgpd_imagemvideo);
+                        setEditRgpd('edit-socio-rgpd-audio', s.rgpd_audio);
                         
                         const editPhoto = document.getElementById('edit-socio-photo');
                         const editPhotoPreview = document.getElementById('edit-socio-photo-preview');
@@ -3312,7 +3366,7 @@ function getMockDatabase() {
                ]
 };
 
-    const SEED_VERSION = "20260529_v1";
+    const SEED_VERSION = "20260529_v2";
     let db = localStorage.getItem('arm_mock_db');
     let dbVersion = localStorage.getItem('arm_mock_db_version');
 
@@ -3334,9 +3388,47 @@ function getMockDatabase() {
         return database;
     }
 
+    function initializeQrzAndGdpr(database) {
+        const qrzMap = {
+            27: "https://www.qrz.com/db/CU2FX",
+            34: "https://www.qrz.com/db/CU1AX",
+            35: "https://www.qrz.com/db/CT2KNS",
+            39: "chaves74@gmail.com",
+            41: "oh2bh@arrl.net"
+        };
+        
+        if (database && database.socios) {
+            database.socios.forEach(s => {
+                // Initialize default GDPR settings
+                if (s.rgpd_email === undefined) s.rgpd_email = 1;
+                if (s.rgpd_sms === undefined) s.rgpd_sms = 1;
+                if (s.rgpd_imagemvideo === undefined) s.rgpd_imagemvideo = 1;
+                if (s.rgpd_audio === undefined) s.rgpd_audio = 1;
+                
+                // Initialize QRZ URL
+                if (s.qrz_url === undefined) {
+                    s.qrz_url = qrzMap[s.numero_socio] || "";
+                }
+            });
+        }
+        
+        if (database && database.candidatos) {
+            database.candidatos.forEach(c => {
+                if (c.rgpd_email === undefined) c.rgpd_email = 1;
+                if (c.rgpd_sms === undefined) c.rgpd_sms = 1;
+                if (c.rgpd_imagemvideo === undefined) c.rgpd_imagemvideo = 1;
+                if (c.rgpd_audio === undefined) c.rgpd_audio = 1;
+                if (c.qrz_url === undefined) c.qrz_url = "";
+            });
+        }
+        
+        return database;
+    }
+
     if (!db || dbVersion !== SEED_VERSION) {
         console.log("Mock Database initialized or updated with seeded data.");
-        const cleaned = sanitizePhotos(initialDb);
+        let cleaned = sanitizePhotos(initialDb);
+        cleaned = initializeQrzAndGdpr(cleaned);
         localStorage.setItem('arm_mock_db', JSON.stringify(cleaned));
         localStorage.setItem('arm_mock_db_version', SEED_VERSION);
         return cleaned;
@@ -3345,14 +3437,16 @@ function getMockDatabase() {
     try {
         const parsed = JSON.parse(db);
         if (parsed && typeof parsed === 'object' && parsed.socios && parsed.candidatos) {
-            const cleaned = sanitizePhotos(parsed);
+            let cleaned = sanitizePhotos(parsed);
+            cleaned = initializeQrzAndGdpr(cleaned);
             return cleaned;
         } else {
             throw new Error("Invalid structure");
         }
     } catch (e) {
         console.warn("Mock Database corrupted. Resetting to initial seed.", e);
-        const cleaned = sanitizePhotos(initialDb);
+        let cleaned = sanitizePhotos(initialDb);
+        cleaned = initializeQrzAndGdpr(cleaned);
         localStorage.setItem('arm_mock_db', JSON.stringify(cleaned));
         localStorage.setItem('arm_mock_db_version', SEED_VERSION);
         return cleaned;
@@ -3587,7 +3681,12 @@ async function handleMockRequest(action, initOptions) {
             email: cand.email,
             estado: 'Ativo',
             data_admissao: timestamp,
-            fotografia: cand.fotografia
+            fotografia: cand.fotografia,
+            qrz_url: cand.qrz_url || '',
+            rgpd_email: cand.rgpd_email !== undefined ? cand.rgpd_email : 1,
+            rgpd_sms: cand.rgpd_sms !== undefined ? cand.rgpd_sms : 1,
+            rgpd_imagemvideo: cand.rgpd_imagemvideo !== undefined ? cand.rgpd_imagemvideo : 1,
+            rgpd_audio: cand.rgpd_audio !== undefined ? cand.rgpd_audio : 1
         };
 
         db.socios.push(newSocio);
@@ -3784,7 +3883,12 @@ async function handleMockRequest(action, initOptions) {
             morada: body.morada,
             iban: body.iban,
             data_admissao: body.data_admissao,
-            fotografia: body.fotografia
+            fotografia: body.fotografia,
+            qrz_url: body.qrz_url || '',
+            rgpd_email: body.rgpd_email !== undefined ? body.rgpd_email : 1,
+            rgpd_sms: body.rgpd_sms !== undefined ? body.rgpd_sms : 1,
+            rgpd_imagemvideo: body.rgpd_imagemvideo !== undefined ? body.rgpd_imagemvideo : 1,
+            rgpd_audio: body.rgpd_audio !== undefined ? body.rgpd_audio : 1
         };
 
         localStorage.setItem('arm_mock_db', JSON.stringify(db));
@@ -4112,7 +4216,12 @@ window.initSocioPortal = function() {
                 concelho: document.getElementById('socio-update-concelho').value.trim(),
                 distrito: document.getElementById('socio-update-distrito').value.trim(),
                 pais: document.getElementById('socio-update-pais').value.trim(),
-                fotografia: document.getElementById('socio-update-photo').value.trim()
+                fotografia: document.getElementById('socio-update-photo').value.trim(),
+                qrz_url: document.getElementById('socio-update-qrz').value.trim(),
+                rgpd_email: document.getElementById('socio-update-rgpd-email').checked ? 1 : 0,
+                rgpd_sms: document.getElementById('socio-update-rgpd-sms').checked ? 1 : 0,
+                rgpd_imagemvideo: document.getElementById('socio-update-rgpd-image').checked ? 1 : 0,
+                rgpd_audio: document.getElementById('socio-update-rgpd-audio').checked ? 1 : 0
             };
             try {
                 const response = await fetch('/api?action=update_socio_profile', {
@@ -4130,6 +4239,90 @@ window.initSocioPortal = function() {
             } catch (err) {
                 alert(err.message);
             }
+        });
+    }
+
+    // Portabilidade de Dados (Exportar JSON - RGPD Art. 20)
+    const exportBtn = document.getElementById('socio-export-data-btn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', async () => {
+            const token = localStorage.getItem('socio_token');
+            if (!token) return;
+            try {
+                const response = await fetch('/api?action=get_socio_data', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || "Erro ao obter dados.");
+
+                const exportObj = {
+                    entidade: "Associação de Radioamadores Marienses (ARM)",
+                    finalidade: "Portabilidade de Dados Pessoais (RGPD Artigo 20.º)",
+                    data_exportacao: new Date().toISOString(),
+                    dados_pessoais: {
+                        numero_socio: result.socio.numero_socio,
+                        nome: result.socio.nome,
+                        nif: result.socio.nif,
+                        cartao_cidadao: result.socio.cartao_cidadao,
+                        sexo: result.socio.sexo,
+                        data_nascimento: result.socio.data_nascimento,
+                        iban: result.socio.iban,
+                        profissao: result.socio.profissao,
+                        habilitacoes: result.socio.habilitacoes,
+                        pais: result.socio.pais,
+                        cod_postal: result.socio.cod_postal,
+                        morada: result.socio.morada,
+                        freguesia: result.socio.freguesia,
+                        concelho: result.socio.concelho,
+                        distrito: result.socio.distrito,
+                        telemovel: result.socio.telemovel,
+                        telefone: result.socio.telefone,
+                        email: result.socio.email,
+                        data_admissao: result.socio.data_admissao,
+                        qrz_url: result.socio.qrz_url || '',
+                        consentimentos_rgpd: {
+                            email_comunicacoes: result.socio.rgpd_email === 1 ? "Autorizado" : "Não Autorizado",
+                            sms_urgencias: result.socio.rgpd_sms === 1 ? "Autorizado" : "Não Autorizado",
+                            publicacao_foto_video: result.socio.rgpd_imagemvideo === 1 ? "Autorizado" : "Não Autorizado",
+                            gravacao_audio_radio: result.socio.rgpd_audio === 1 ? "Autorizado" : "Não Autorizado"
+                        }
+                    },
+                    historico_quotas: (result.quotas || []).map(q => ({
+                        ano: q.ano,
+                        valor: q.valor,
+                        estado: q.pago === 1 ? "Pago" : (q.pago === 2 ? "Isenta" : "Pendente"),
+                        data_pagamento: q.data_pagamento || null,
+                        numero_recibo: q.numero_recibo || null
+                    }))
+                };
+
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj, null, 4));
+                const downloadAnchor = document.createElement('a');
+                downloadAnchor.setAttribute("href", dataStr);
+                downloadAnchor.setAttribute("download", `arm_socio_${result.socio.numero_socio}_portabilidade.json`);
+                document.body.appendChild(downloadAnchor);
+                downloadAnchor.click();
+                downloadAnchor.remove();
+            } catch (err) {
+                alert("Erro ao exportar dados: " + err.message);
+            }
+        });
+    }
+
+    // Direito ao Esquecimento (Solicitar Eliminação - RGPD Art. 17)
+    const deleteBtn = document.getElementById('socio-delete-request-btn');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', () => {
+            if (!confirm(`Deseja solicitar a eliminação definitiva da sua ficha de sócio e de todos os dados associados nos termos do Artigo 17.º do RGPD (Direito ao Esquecimento)?\n\nEsta ação abrirá o seu cliente de e-mail para enviar um pedido formal assinado à direção da ARM.`)) return;
+            
+            const socioName = document.getElementById('socio-profile-name').textContent;
+            const socioNum = document.getElementById('socio-profile-num').textContent;
+            const socioNif = document.getElementById('socio-profile-nif').textContent;
+            
+            const subject = encodeURIComponent(`Solicitação de Eliminação de Dados (Direito ao Esquecimento) - Sócio N.º ${socioNum}`);
+            const body = encodeURIComponent(`À Direção da Associação de Radioamadores Marienses (ARM),\n\nEu, ${socioName}, associado número ${socioNum}, titular do NIF ${socioNif}, venho por este meio requerer, nos termos do Artigo 17.º do Regulamento Geral sobre a Proteção de Dados (RGPD), a eliminação definitiva da minha ficha de associado e de todos os dados pessoais a ela associados dos vossos registos.\n\nDeclaro estar ciente de que este pedido implica a perda da minha qualidade de associado e dos direitos a ela inerentes.\n\nCom os melhores cumprimentos,\n${socioName}\nData: ${new Date().toLocaleDateString('pt-PT')}`);
+            
+            window.location.href = `mailto:geral@cu1arm.com?subject=${subject}&body=${body}`;
         });
     }
 
@@ -4199,9 +4392,36 @@ async function loadSocioDashboard(token) {
         document.getElementById('socio-profile-cc').textContent = socio.cartao_cidadao || '-';
         document.getElementById('socio-profile-mobile').textContent = socio.telemovel || socio.telefone || '-';
         document.getElementById('socio-profile-email').textContent = socio.email || '-';
+        
+        const qrzEl = document.getElementById('socio-profile-qrz');
+        if (qrzEl) {
+            if (socio.qrz_url) {
+                const cleanUrl = socio.qrz_url.startsWith('http') ? socio.qrz_url : `https://${socio.qrz_url}`;
+                qrzEl.innerHTML = `<a href="${cleanUrl}" target="_blank" style="color: var(--accent-primary); text-decoration: underline; font-weight: 600;">Ver QRZ 🌐</a>`;
+            } else {
+                qrzEl.textContent = '-';
+            }
+        }
+
         document.getElementById('socio-profile-address').textContent = socio.morada || '-';
         document.getElementById('socio-profile-admissao').textContent = socio.data_admissao || '-';
         
+        // Render GDPR consents badges
+        const setRgpdStatus = (elId, consented) => {
+            const el = document.getElementById(elId);
+            if (el) {
+                if (consented === 1 || consented === true || consented === "1") {
+                    el.innerHTML = `<span style="color: var(--accent-secondary); font-weight: 600;">Autorizado</span>`;
+                } else {
+                    el.innerHTML = `<span style="color: var(--accent-danger); font-weight: 600;">Não Autorizado</span>`;
+                }
+            }
+        };
+        setRgpdStatus('socio-profile-rgpd-email', socio.rgpd_email);
+        setRgpdStatus('socio-profile-rgpd-sms', socio.rgpd_sms);
+        setRgpdStatus('socio-profile-rgpd-image', socio.rgpd_imagemvideo);
+        setRgpdStatus('socio-profile-rgpd-audio', socio.rgpd_audio);
+
         // Status badge styling
         const statusEl = document.getElementById('socio-profile-status');
         statusEl.textContent = socio.estado;
@@ -4221,6 +4441,21 @@ async function loadSocioDashboard(token) {
         document.getElementById('socio-update-phone').value = socio.telefone || '';
         document.getElementById('socio-update-email').value = socio.email || '';
         document.getElementById('socio-update-iban').value = socio.iban || '';
+        const updateQrzEl = document.getElementById('socio-update-qrz');
+        if (updateQrzEl) updateQrzEl.value = socio.qrz_url || '';
+
+        // Prepopulate GDPR checkboxes
+        const setRgpdCheckbox = (elId, consented) => {
+            const el = document.getElementById(elId);
+            if (el) {
+                el.checked = (consented === 1 || consented === true || consented === "1");
+            }
+        };
+        setRgpdCheckbox('socio-update-rgpd-email', socio.rgpd_email);
+        setRgpdCheckbox('socio-update-rgpd-sms', socio.rgpd_sms);
+        setRgpdCheckbox('socio-update-rgpd-image', socio.rgpd_imagemvideo);
+        setRgpdCheckbox('socio-update-rgpd-audio', socio.rgpd_audio);
+
         document.getElementById('socio-update-job').value = socio.profissao || '';
         document.getElementById('socio-update-degree').value = socio.habilitacoes || '';
         document.getElementById('socio-update-nif').value = socio.nif || '';
