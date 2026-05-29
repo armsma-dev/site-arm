@@ -540,6 +540,9 @@ window.initSignupForm = function() {
 
 // 4. ADMIN DASHBOARD CRM LOGIC
 window.initAdminPage = function() {
+    // Inicializar/migrar tabelas da base de dados silenciosamente
+    fetch('/api?action=init').catch(err => console.warn("Erro silencioso na migração D1:", err));
+
     let cachedDashboardData = null;
     const loginCard = document.getElementById('admin-login-card');
     const dashboardArea = document.getElementById('admin-dashboard-area');
@@ -4001,6 +4004,9 @@ async function handleMockRequest(action, initOptions) {
 // ==========================================================================
 
 window.initSocioPortal = function() {
+    // Inicializar/migrar tabelas da base de dados silenciosamente
+    fetch('/api?action=init').catch(err => console.warn("Erro silencioso na migração D1:", err));
+
     const loginCard = document.getElementById('socio-login-card');
     const dashboardArea = document.getElementById('socio-dashboard-area');
     const loginError = document.getElementById('socio-login-error-msg');
@@ -4242,89 +4248,7 @@ window.initSocioPortal = function() {
         });
     }
 
-    // Portabilidade de Dados (Exportar JSON - RGPD Art. 20)
-    const exportBtn = document.getElementById('socio-export-data-btn');
-    if (exportBtn) {
-        exportBtn.addEventListener('click', async () => {
-            const token = localStorage.getItem('socio_token');
-            if (!token) return;
-            try {
-                const response = await fetch('/api?action=get_socio_data', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const result = await response.json();
-                if (!response.ok) throw new Error(result.error || "Erro ao obter dados.");
-
-                const exportObj = {
-                    entidade: "Associação de Radioamadores Marienses (ARM)",
-                    finalidade: "Portabilidade de Dados Pessoais (RGPD Artigo 20.º)",
-                    data_exportacao: new Date().toISOString(),
-                    dados_pessoais: {
-                        numero_socio: result.socio.numero_socio,
-                        nome: result.socio.nome,
-                        nif: result.socio.nif,
-                        cartao_cidadao: result.socio.cartao_cidadao,
-                        sexo: result.socio.sexo,
-                        data_nascimento: result.socio.data_nascimento,
-                        iban: result.socio.iban,
-                        profissao: result.socio.profissao,
-                        habilitacoes: result.socio.habilitacoes,
-                        pais: result.socio.pais,
-                        cod_postal: result.socio.cod_postal,
-                        morada: result.socio.morada,
-                        freguesia: result.socio.freguesia,
-                        concelho: result.socio.concelho,
-                        distrito: result.socio.distrito,
-                        telemovel: result.socio.telemovel,
-                        telefone: result.socio.telefone,
-                        email: result.socio.email,
-                        data_admissao: result.socio.data_admissao,
-                        qrz_url: result.socio.qrz_url || '',
-                        consentimentos_rgpd: {
-                            email_comunicacoes: result.socio.rgpd_email === 1 ? "Autorizado" : "Não Autorizado",
-                            sms_urgencias: result.socio.rgpd_sms === 1 ? "Autorizado" : "Não Autorizado",
-                            publicacao_foto_video: result.socio.rgpd_imagemvideo === 1 ? "Autorizado" : "Não Autorizado",
-                            gravacao_audio_radio: result.socio.rgpd_audio === 1 ? "Autorizado" : "Não Autorizado"
-                        }
-                    },
-                    historico_quotas: (result.quotas || []).map(q => ({
-                        ano: q.ano,
-                        valor: q.valor,
-                        estado: q.pago === 1 ? "Pago" : (q.pago === 2 ? "Isenta" : "Pendente"),
-                        data_pagamento: q.data_pagamento || null,
-                        numero_recibo: q.numero_recibo || null
-                    }))
-                };
-
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj, null, 4));
-                const downloadAnchor = document.createElement('a');
-                downloadAnchor.setAttribute("href", dataStr);
-                downloadAnchor.setAttribute("download", `arm_socio_${result.socio.numero_socio}_portabilidade.json`);
-                document.body.appendChild(downloadAnchor);
-                downloadAnchor.click();
-                downloadAnchor.remove();
-            } catch (err) {
-                alert("Erro ao exportar dados: " + err.message);
-            }
-        });
-    }
-
-    // Direito ao Esquecimento (Solicitar Eliminação - RGPD Art. 17)
-    const deleteBtn = document.getElementById('socio-delete-request-btn');
-    if (deleteBtn) {
-        deleteBtn.addEventListener('click', () => {
-            if (!confirm(`Deseja solicitar a eliminação definitiva da sua ficha de sócio e de todos os dados associados nos termos do Artigo 17.º do RGPD (Direito ao Esquecimento)?\n\nEsta ação abrirá o seu cliente de e-mail para enviar um pedido formal assinado à direção da ARM.`)) return;
-            
-            const socioName = document.getElementById('socio-profile-name').textContent;
-            const socioNum = document.getElementById('socio-profile-num').textContent;
-            const socioNif = document.getElementById('socio-profile-nif').textContent;
-            
-            const subject = encodeURIComponent(`Solicitação de Eliminação de Dados (Direito ao Esquecimento) - Sócio N.º ${socioNum}`);
-            const body = encodeURIComponent(`À Direção da Associação de Radioamadores Marienses (ARM),\n\nEu, ${socioName}, associado número ${socioNum}, titular do NIF ${socioNif}, venho por este meio requerer, nos termos do Artigo 17.º do Regulamento Geral sobre a Proteção de Dados (RGPD), a eliminação definitiva da minha ficha de associado e de todos os dados pessoais a ela associados dos vossos registos.\n\nDeclaro estar ciente de que este pedido implica a perda da minha qualidade de associado e dos direitos a ela inerentes.\n\nCom os melhores cumprimentos,\n${socioName}\nData: ${new Date().toLocaleDateString('pt-PT')}`);
-            
-            window.location.href = `mailto:geral@cu1arm.com?subject=${subject}&body=${body}`;
-        });
-    }
+    // Event listeners para exportação e eliminação são associados dinamicamente em loadSocioDashboard
 
     // Inactivity timeout for Member Portal (15 minutes)
     let socioInactivityTimeout;
@@ -4530,6 +4454,38 @@ async function loadSocioDashboard(token) {
                         });
                     }
                 }
+            });
+        }
+
+        // Bind Export PDF & Delete Request Buttons
+        const exportBtn = document.getElementById('socio-export-data-btn');
+        if (exportBtn) {
+            const newExportBtn = exportBtn.cloneNode(true);
+            exportBtn.parentNode.replaceChild(newExportBtn, exportBtn);
+            newExportBtn.addEventListener('click', () => {
+                if (typeof window.generateMemberDataPortabilityPDF === 'function') {
+                    window.generateMemberDataPortabilityPDF(result);
+                } else {
+                    alert("Erro: Gerador de PDF de portabilidade não foi carregado.");
+                }
+            });
+        }
+
+        const deleteBtn = document.getElementById('socio-delete-request-btn');
+        if (deleteBtn) {
+            const newDeleteBtn = deleteBtn.cloneNode(true);
+            deleteBtn.parentNode.replaceChild(newDeleteBtn, deleteBtn);
+            newDeleteBtn.addEventListener('click', () => {
+                if (!confirm(`Deseja solicitar a eliminação definitiva da sua ficha de sócio e de todos os dados associados nos termos do Artigo 17.º do RGPD (Direito ao Esquecimento)?\n\nEsta ação abrirá o seu cliente de e-mail para enviar um pedido formal assinado à direção da ARM.`)) return;
+                
+                const socioName = socio.nome;
+                const socioNum = socio.numero_socio;
+                const socioNif = socio.nif || '-';
+                
+                const subject = encodeURIComponent(`Solicitação de Eliminação de Dados (Direito ao Esquecimento) - Sócio N.º ${socioNum}`);
+                const body = encodeURIComponent(`À Direção da Associação de Radioamadores Marienses (ARM),\n\nEu, ${socioName}, associado número ${socioNum}, titular do NIF ${socioNif}, venho por este meio requerer, nos termos do Artigo 17.º do Regulamento Geral sobre a Proteção de Dados (RGPD), a eliminação definitiva da minha ficha de associado e de todos os dados pessoais a ela associados dos vossos registos.\n\nDeclaro estar ciente de que este pedido implica a perda da minha qualidade de associado e dos direitos a ela inerentes.\n\nCom os melhores cumprimentos,\n${socioName}\nData: ${new Date().toLocaleDateString('pt-PT')}`);
+                
+                window.location.href = `mailto:geral@cu1arm.com?subject=${subject}&body=${body}`;
             });
         }
 

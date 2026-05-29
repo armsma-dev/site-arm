@@ -353,3 +353,213 @@ function runAnnualReportGeneration(year, data) {
     // Save annual report PDF
     doc.save(`Relatorio_Contas_Anual_${currentYear}_ARM.pdf`);
 }
+
+window.generateMemberDataPortabilityPDF = function(result) {
+    if (!window.jspdf) {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+        script.onload = () => {
+            runMemberDataPDF(result);
+        };
+        script.onerror = () => {
+            alert("Não foi possível carregar a biblioteca PDF. Verifique a sua ligação à internet.");
+        };
+        document.body.appendChild(script);
+    } else {
+        runMemberDataPDF(result);
+    }
+};
+
+function runMemberDataPDF(result) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({
+        orientation: 'p',
+        unit: 'mm',
+        format: 'a4'
+    });
+
+    const socio = result.socio;
+    const quotas = result.quotas || [];
+
+    // Header Background (Premium Dark Blue)
+    doc.setFillColor(11, 15, 25);
+    doc.rect(0, 0, 210, 36, 'F');
+
+    // Header Text
+    doc.setTextColor(0, 210, 255); // Cyan
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text("ASSOCIAÇÃO DE RADIOAMADORES MARIENSES (ARM)", 15, 14);
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8.5);
+    doc.text("NIF: 512065097 | E-mail: geral@cu1arm.com | Site: www.cu1arm.com", 15, 22);
+    doc.text("Direito de Portabilidade de Dados Pessoais (Regulamento Geral sobre a Proteção de Dados - Artigo 20.º)", 15, 27);
+
+    // Document Title
+    doc.setTextColor(11, 15, 25);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(13);
+    doc.text(`FICHA INDIVIDUAL DE PORTABILIDADE - SÓCIO N.º ${socio.numero_socio}`, 15, 48);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(110, 115, 125);
+    doc.text(`Data de Exportação: ${new Date().toLocaleString('pt-PT')}`, 15, 53);
+
+    // Divider
+    doc.setDrawColor(210, 215, 222);
+    doc.setLineWidth(0.3);
+    doc.line(15, 56, 195, 56);
+
+    let y = 64;
+
+    // 1. DADOS PESSOAIS
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10.5);
+    doc.setTextColor(11, 15, 25);
+    doc.text("1. DADOS DE IDENTIFICAÇÃO PESSOAL", 15, y);
+    doc.line(15, y + 2, 195, y + 2);
+    y += 8;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(50, 55, 60);
+
+    const personalData = [
+        ["Nome Completo:", socio.nome, "NIF / Contribuinte:", socio.nif || 'N/D'],
+        ["Cartão de Cidadão:", socio.cartao_cidadao || 'N/D'],
+        ["Gênero:", socio.sexo === 'M' ? 'Masculino' : (socio.sexo === 'F' ? 'Feminino' : 'Outro'), "Data de Nascimento:", socio.data_nascimento ? socio.data_nascimento.split('-').reverse().join('/') : 'N/D'],
+        ["Profissão:", socio.profissao || 'N/D', "Habilitações:", socio.habilitacoes || 'N/D'],
+        ["IBAN Associado:", socio.iban || 'N/D', "E-mail Registado:", socio.email]
+    ];
+
+    personalData.forEach(row => {
+        doc.setFont("helvetica", "bold");
+        doc.text(row[0], 15, y);
+        doc.setFont("helvetica", "normal");
+        doc.text(row[1], 48, y);
+        if (row[2]) {
+            doc.setFont("helvetica", "bold");
+            doc.text(row[2], 115, y);
+            doc.setFont("helvetica", "normal");
+            doc.text(row[3], 150, y);
+        }
+        y += 6.5;
+    });
+
+    y += 4;
+
+    // 2. ENDEREÇO & CONTACTOS
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10.5);
+    doc.setTextColor(11, 15, 25);
+    doc.text("2. LOCALIZAÇÃO E CONTACTOS", 15, y);
+    doc.line(15, y + 2, 195, y + 2);
+    y += 8;
+
+    const contactData = [
+        ["Morada Postal:", socio.morada || 'N/D', "Código Postal:", socio.cod_postal || 'N/D'],
+        ["Freguesia:", socio.freguesia || 'N/D', "Concelho / Concelho:", socio.concelho || 'N/D'],
+        ["Distrito / Ilha:", socio.distrito || 'N/D', "País de Residência:", socio.pais || 'N/D'],
+        ["Telemóvel:", socio.telemovel || 'N/D', "Telefone Fixo:", socio.telefone || 'N/D']
+    ];
+
+    contactData.forEach(row => {
+        doc.setFont("helvetica", "bold");
+        doc.text(row[0], 15, y);
+        doc.setFont("helvetica", "normal");
+        doc.text(row[1], 48, y);
+        if (row[2]) {
+            doc.setFont("helvetica", "bold");
+            doc.text(row[2], 115, y);
+            doc.setFont("helvetica", "normal");
+            doc.text(row[3], 150, y);
+        }
+        y += 6.5;
+    });
+
+    y += 4;
+
+    // 3. REGISTO ASSOCIATIVO & PRIVACIDADE
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10.5);
+    doc.setTextColor(11, 15, 25);
+    doc.text("3. INFORMAÇÃO ASSOCIATIVA, QRZ E RGPD", 15, y);
+    doc.line(15, y + 2, 195, y + 2);
+    y += 8;
+
+    const assocData = [
+        ["Data de Admissão:", socio.data_admissao ? socio.data_admissao.split('-').reverse().join('/') : 'N/D', "Perfil QRZ.com (URL):", socio.qrz_url || 'N/D'],
+        ["Autorização E-mail:", socio.rgpd_email === 1 ? 'Sim (Autorizado)' : 'Não', "Autorização SMS:", socio.rgpd_sms === 1 ? 'Sim (Autorizado)' : 'Não'],
+        ["Publicação Imagem:", socio.rgpd_imagemvideo === 1 ? 'Sim (Autorizado)' : 'Não', "Gravação de Voz:", socio.rgpd_audio === 1 ? 'Sim (Autorizado)' : 'Não']
+    ];
+
+    assocData.forEach(row => {
+        doc.setFont("helvetica", "bold");
+        doc.text(row[0], 15, y);
+        doc.setFont("helvetica", "normal");
+        doc.text(row[1], 48, y);
+        if (row[2]) {
+            doc.setFont("helvetica", "bold");
+            doc.text(row[2], 115, y);
+            doc.setFont("helvetica", "normal");
+            doc.text(row[3], 150, y);
+        }
+        y += 6.5;
+    });
+
+    y += 4;
+
+    // 4. HISTÓRICO DE QUOTAS
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10.5);
+    doc.setTextColor(11, 15, 25);
+    doc.text("4. HISTÓRICO DE PAGAMENTO DE QUOTAS", 15, y);
+    doc.line(15, y + 2, 195, y + 2);
+    y += 8;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.text("Ano", 15, y);
+    doc.text("Valor", 45, y);
+    doc.text("Estado", 80, y);
+    doc.text("Pago em", 115, y);
+    doc.text("N.º Recibo", 150, y);
+    y += 6;
+    doc.line(15, y, 195, y);
+    y += 6;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8.5);
+
+    if (quotas.length === 0) {
+        doc.text("Nenhum registo de quotas associado a este membro.", 15, y);
+    } else {
+        quotas.forEach(q => {
+            if (y > 275) {
+                doc.addPage();
+                y = 25;
+            }
+            const dateStr = q.data_pagamento ? q.data_pagamento.split('-').reverse().join('/') : '-';
+            const stateStr = q.pago === 1 ? 'Paga' : (q.pago === 2 ? 'Isenta' : 'Pendente');
+
+            doc.text(String(q.ano), 15, y);
+            doc.text(`${parseFloat(q.valor).toFixed(2)} EUR`, 45, y);
+            doc.text(stateStr, 80, y);
+            doc.text(dateStr, 115, y);
+            doc.text(q.numero_recibo || '-', 150, y);
+            y += 6.5;
+        });
+    }
+
+    // Footnote
+    y = Math.max(y + 10, 275);
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(7.5);
+    doc.setTextColor(130, 135, 145);
+    doc.text("Ficha gerada de forma automatizada pelo Portal do Sócio para fins de portabilidade de dados (Artigo 20.º do RGPD).", 15, y);
+
+    doc.save(`Portabilidade_Dados_Socio_${socio.numero_socio}.pdf`);
+}

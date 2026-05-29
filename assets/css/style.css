@@ -1624,3 +1624,27 @@ h1, h2, h3, h4, h5, h6 {
 .navbar-toggle.active span:nth-child(3) {
     transform: translateY(-8px) rotate(-45deg);
 }
+
+/* Grelha de Dashboard de Sócio (Fully aligned stacked layout) */
+.socio-dashboard-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+}
+
+.socio-dashboard-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+}
+
+.socio-dashboard-main {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+}
+
+
