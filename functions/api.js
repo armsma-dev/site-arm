@@ -60,6 +60,8 @@ export async function onRequest(context) {
                 return await handleDeleteTransaction(request, env.DB, corsHeaders);
             case 'login_socio':
                 return await handleLoginSocio(request, env, corsHeaders);
+            case 'login_socio_credentials':
+                return await handleLoginSocioCredentials(request, env.DB, corsHeaders);
             case 'get_socio_data':
                 return await handleGetSocioData(request, env.DB, corsHeaders);
             case 'update_socio_profile':
@@ -766,6 +768,59 @@ async function handleLoginSocio(request, env, headers) {
     const expiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours validity
 
     await env.DB.prepare(`
+        INSERT INTO socio_sessions (token, socio_id, expires_at) VALUES (?, ?, ?)
+    `).bind(token, member.id, expiresAt).run();
+
+    return new Response(JSON.stringify({ token, expires_at: expiresAt }), { status: 200, headers });
+}
+
+// ==========================================================================
+// 15B. MEMBER PORTAL - CREDENTIALS LOGIN (N.º Sócio & NIF)
+// ==========================================================================
+async function handleLoginSocioCredentials(request, db, headers) {
+    if (request.method !== 'POST') {
+        return new Response(JSON.stringify({ error: "Method not allowed." }), { status: 405, headers });
+    }
+
+    const { numero_socio, nif } = await request.json();
+
+    if (!numero_socio || !nif) {
+        return new Response(JSON.stringify({ error: "Número de Sócio e NIF são obrigatórios." }), { status: 400, headers });
+    }
+
+    const socioNum = parseInt(numero_socio, 10);
+    if (isNaN(socioNum)) {
+        return new Response(JSON.stringify({ error: "Número de Sócio inválido." }), { status: 400, headers });
+    }
+
+    const cleanInputNif = nif.toString().trim().replace(/[\s-]/g, '');
+    if (!cleanInputNif) {
+        return new Response(JSON.stringify({ error: "NIF inválido." }), { status: 400, headers });
+    }
+
+    // Find member by numero_socio
+    const member = await db.prepare(`
+        SELECT id, nif, estado FROM socios WHERE numero_socio = ?
+    `).bind(socioNum).first();
+
+    if (!member) {
+        return new Response(JSON.stringify({ error: "Número de Sócio ou NIF incorreto." }), { status: 403, headers });
+    }
+
+    const cleanDbNif = (member.nif || '').toString().trim().replace(/[\s-]/g, '');
+    if (cleanDbNif !== cleanInputNif) {
+        return new Response(JSON.stringify({ error: "Número de Sócio ou NIF incorreto." }), { status: 403, headers });
+    }
+
+    if (member.estado !== 'Ativo') {
+        return new Response(JSON.stringify({ error: "A sua conta de sócio não está ativa. Por favor, contacte a direção." }), { status: 403, headers });
+    }
+
+    // Generate random member session token
+    const token = crypto.randomUUID();
+    const expiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours validity
+
+    await db.prepare(`
         INSERT INTO socio_sessions (token, socio_id, expires_at) VALUES (?, ?, ?)
     `).bind(token, member.id, expiresAt).run();
 

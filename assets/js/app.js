@@ -3410,6 +3410,18 @@ async function handleMockRequest(action, initOptions) {
         return response({ token: mockToken });
     }
 
+    if (action === 'login_socio_credentials') {
+        const num = parseInt(body.numero_socio);
+        const nif = body.nif;
+        const socio = db.socios.find(s => s.numero_socio === num && s.nif === nif);
+        if (!socio) {
+            return response({ error: "Número de Sócio ou NIF incorreto no Mock Mode." }, 404);
+        }
+        localStorage.setItem('arm_mock_logged_socio_id', socio.id);
+        const mockToken = 'mock-session-socio-' + Date.now();
+        return response({ token: mockToken });
+    }
+
     if (action === 'get_socio_data') {
         const socioId = localStorage.getItem('arm_mock_logged_socio_id');
         const socio = db.socios.find(s => s.id === parseInt(socioId));
@@ -3450,10 +3462,61 @@ window.initSocioPortal = function() {
 
     if (!loginCard || !dashboardArea) return;
 
+    // Toggle login forms
+    const toggleCredBtn = document.getElementById('toggle-socio-cred-login');
+    const toggleGoogleBtn = document.getElementById('toggle-socio-google-login');
+    const googleSection = document.getElementById('socio-google-signin-section');
+    const credSection = document.getElementById('socio-cred-login-section');
+
+    if (toggleCredBtn && googleSection && credSection) {
+        toggleCredBtn.addEventListener('click', () => {
+            googleSection.style.display = 'none';
+            credSection.style.display = 'block';
+        });
+    }
+
+    if (toggleGoogleBtn && googleSection && credSection) {
+        toggleGoogleBtn.addEventListener('click', () => {
+            googleSection.style.display = 'block';
+            credSection.style.display = 'none';
+        });
+    }
+
+    // Submit credentials login
+    const credLoginForm = document.getElementById('socio-cred-login-form');
+    if (credLoginForm) {
+        credLoginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const num = parseInt(document.getElementById('socio-login-num').value);
+            const nif = document.getElementById('socio-login-nif').value.trim();
+            if (loginError) loginError.style.display = 'none';
+
+            try {
+                const fetchRes = await fetch('/api?action=login_socio_credentials', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ numero_socio: num, nif })
+                });
+                const result = await fetchRes.json();
+                if (!fetchRes.ok) throw new Error(result.error || "Login incorreto.");
+
+                localStorage.setItem('socio_token', result.token);
+                loadSocioDashboard(result.token);
+            } catch (err) {
+                if (loginError) {
+                    loginError.style.display = 'block';
+                    loginError.textContent = err.message;
+                }
+            }
+        });
+    }
+
     function showLogin() {
         loginCard.style.display = 'block';
         dashboardArea.style.display = 'none';
         if (loginError) loginError.style.display = 'none';
+        if (googleSection) googleSection.style.display = 'block';
+        if (credSection) credSection.style.display = 'none';
         
         initSocioGoogleSignIn();
     }

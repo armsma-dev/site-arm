@@ -15,11 +15,39 @@
         <div id="socio-login-card" class="card" style="max-width: 450px; margin: 0 auto; padding: 40px 30px; text-align: center;">
             <div class="card-icon" style="color: var(--accent-secondary);">👤</div>
             <h3 class="card-title" style="font-size: 1.5rem; margin-bottom: 8px;">Acesso ao Portal</h3>
-            <p class="card-text" style="font-size: 0.9rem; margin-bottom: 24px;">Autentique-se com a sua conta Google associada à sua ficha de sócio na ARM.</p>
+            <p class="card-text" style="font-size: 0.9rem; margin-bottom: 24px;">Autentique-se para aceder à sua Área de Sócio.</p>
             
             <!-- Contentor do Google Sign-In Oficial -->
-            <div id="google-socio-signin-btn-container" style="display: flex; flex-direction: column; align-items: center; gap: 16px; margin: 24px 0 16px 0; min-height: 40px; justify-content: center;">
-                <div id="google-socio-signin-btn"></div>
+            <div id="socio-google-signin-section">
+                <div id="google-socio-signin-btn-container" style="display: flex; flex-direction: column; align-items: center; gap: 16px; margin: 24px 0 16px 0; min-height: 40px; justify-content: center;">
+                    <div id="google-socio-signin-btn"></div>
+                </div>
+
+                <!-- Toggle para entrar com Credenciais -->
+                <button type="button" id="toggle-socio-cred-login" style="background: none; border: none; color: var(--text-secondary); font-size: 0.8rem; text-decoration: underline; cursor: pointer; margin-top: 12px; margin-bottom: 12px; outline: none;">
+                    ou entrar com N.º Sócio e NIF
+                </button>
+            </div>
+
+            <!-- Formulário de Credenciais Fallback (N.º Sócio e NIF) -->
+            <div id="socio-cred-login-section" style="display: none; width: 100%; margin-top: 16px; border-top: 1px solid var(--border-glass); padding-top: 16px;">
+                <form id="socio-cred-login-form" style="display: flex; flex-direction: column; gap: 16px; text-align: left;">
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">N.º de Sócio</label>
+                        <input type="number" id="socio-login-num" required placeholder="Ex: 43" style="padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem;">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">NIF (Número de Contribuinte)</label>
+                        <input type="password" id="socio-login-nif" required placeholder="Inserir NIF de sócio" style="padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem; text-align: center;">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="padding: 10px 0; font-size: 0.95rem; font-weight: 600; cursor: pointer; width: 100%; border: none; margin-top: 8px;">
+                        Entrar no Portal 🔑
+                    </button>
+                </form>
+
+                <button type="button" id="toggle-socio-google-login" style="background: none; border: none; color: var(--text-secondary); font-size: 0.8rem; text-decoration: underline; cursor: pointer; margin-top: 16px; outline: none;">
+                    entrar com Conta Google
+                </button>
             </div>
 
             <!-- Simulador de Login Google (Visível localmente/Mock Mode) -->
