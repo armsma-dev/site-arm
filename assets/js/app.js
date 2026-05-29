@@ -804,6 +804,17 @@ window.initAdminPage = function() {
         });
     }
 
+    // Auto-select category for transfers
+    const transTipoSelect = document.getElementById('trans-tipo');
+    const transCategoriaSelect = document.getElementById('trans-categoria');
+    if (transTipoSelect && transCategoriaSelect) {
+        transTipoSelect.addEventListener('change', () => {
+            if (transTipoSelect.value === 'transferencia') {
+                transCategoriaSelect.value = 'Transferência de Saldo';
+            }
+        });
+    }
+
     // Submit general transaction
     const transactionForm = document.getElementById('accounting-transaction-form');
     if (transactionForm) {
@@ -820,18 +831,68 @@ window.initAdminPage = function() {
             };
 
             try {
-                const response = await fetch('/api?action=add_transaction', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${curToken}`
-                    },
-                    body: JSON.stringify(data)
-                });
-                const result = await response.json();
-                if (!response.ok) throw new Error(result.error || "Erro ao adicionar movimento.");
+                if (data.tipo === 'transferencia') {
+                    const destAccount = data.meio_pagamento === 'banco' ? 'caixa' : 'banco';
+                    
+                    // Create Outflow (Despesa)
+                    const outData = {
+                        tipo: 'despesa',
+                        meio_pagamento: data.meio_pagamento,
+                        descricao: `Transferência de Saldo (Saída) - ${data.descricao}`,
+                        valor: data.valor,
+                        categoria: 'Transferência de Saldo',
+                        data: data.data
+                    };
+                    
+                    // Create Inflow (Receita)
+                    const inData = {
+                        tipo: 'receita',
+                        meio_pagamento: destAccount,
+                        descricao: `Transferência de Saldo (Entrada) - ${data.descricao}`,
+                        valor: data.valor,
+                        categoria: 'Transferência de Saldo',
+                        data: data.data
+                    };
+                    
+                    // Call API for both
+                    const res1 = await fetch('/api?action=add_transaction', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${curToken}`
+                        },
+                        body: JSON.stringify(outData)
+                    });
+                    const r1 = await res1.json();
+                    if (!res1.ok) throw new Error(r1.error || "Erro ao registar a saída da transferência.");
+                    
+                    const res2 = await fetch('/api?action=add_transaction', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${curToken}`
+                        },
+                        body: JSON.stringify(inData)
+                    });
+                    const r2 = await res2.json();
+                    if (!res2.ok) throw new Error(r2.error || "Erro ao registar a entrada da transferência.");
+                    
+                    alert("Transferência de saldo registada com sucesso!");
+                } else {
+                    const response = await fetch('/api?action=add_transaction', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${curToken}`
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error || "Erro ao adicionar movimento.");
+                    
+                    alert("Movimento contabilístico registado!");
+                }
                 
-                alert("Movimento contabilístico registado!");
                 transactionForm.reset();
                 if (formPanel) formPanel.style.display = 'none';
                 if (toggleFormBtn) toggleFormBtn.textContent = '+ Registar Receita / Despesa';
@@ -2966,7 +3027,7 @@ function getMockDatabase() {
                ]
 };
 
-    const SEED_VERSION = "20260528_v3";
+    const SEED_VERSION = "20260529_v1";
     let db = localStorage.getItem('arm_mock_db');
     let dbVersion = localStorage.getItem('arm_mock_db_version');
 
