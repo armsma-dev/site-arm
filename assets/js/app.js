@@ -10,38 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initGlobalFeatures() {
-    // A. GESTÃO DE TEMAS (CLARO / ESCURO)
-    const themeToggleBtn = document.getElementById('theme-toggle');
-    const themeIcon = themeToggleBtn ? themeToggleBtn.querySelector('span') : null;
-    
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    updateThemeIcon(savedTheme);
-
-    if (themeToggleBtn) {
-        themeToggleBtn.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateThemeIcon(newTheme);
-            if (typeof window.updateMapTheme === 'function') {
-                window.updateMapTheme(newTheme);
-            }
-        });
-    }
-
-    function updateThemeIcon(theme) {
-        if (!themeIcon) return;
-        if (theme === 'light') {
-            themeIcon.textContent = '🌙';
-            themeToggleBtn.setAttribute('title', 'Mudar para Tema Escuro');
-        } else {
-            themeIcon.textContent = '☀️';
-            themeToggleBtn.setAttribute('title', 'Mudar para Tema Claro');
-        }
-    }
+    // A. GESTÃO DE TEMAS (TEMA ESCURO FIXO)
+    document.documentElement.setAttribute('data-theme', 'dark');
+    localStorage.setItem('theme', 'dark');
 
     // B. COMPORTAMENTO DO NAVBAR AO FAZER SCROLL
     const navbar = document.querySelector('.navbar');
@@ -1446,11 +1417,18 @@ window.initAdminPage = function() {
                 
                 const badgeState = q.pago === 1 
                     ? `<span style="font-size: 0.75rem; font-weight: 600; color: var(--accent-secondary); background: rgba(0,230,118,0.1); padding: 4px 8px; border-radius: 100px;">Paga</span>`
-                    : `<span style="font-size: 0.75rem; font-weight: 600; color: var(--accent-danger); background: rgba(255,23,68,0.1); padding: 4px 8px; border-radius: 100px;">Pendente</span>`;
+                    : (q.pago === 2
+                        ? `<span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: rgba(255,255,255,0.08); padding: 4px 8px; border-radius: 100px;">Isenta</span>`
+                        : `<span style="font-size: 0.75rem; font-weight: 600; color: var(--accent-danger); background: rgba(255,23,68,0.1); padding: 4px 8px; border-radius: 100px;">Pendente</span>`);
 
                 const action = q.pago === 1
                     ? `<button class="btn btn-secondary download-receipt-btn" data-quota-id="${q.id}" style="padding: 5px 12px; font-size: 0.75rem; cursor: pointer;">📄 Descarregar Recibo</button>`
-                    : `<button class="btn btn-primary pay-quota-btn" data-quota-id="${q.id}" style="padding: 5px 12px; font-size: 0.75rem; cursor: pointer;">💰 Marcar Pago</button>`;
+                    : (q.pago === 2
+                        ? `<span style="font-size: 0.8rem; color: var(--text-muted);">Sem ações</span>`
+                        : `<div style="display: flex; gap: 8px; justify-content: flex-end;">
+                             <button class="btn btn-primary pay-quota-btn" data-quota-id="${q.id}" style="padding: 5px 12px; font-size: 0.75rem; cursor: pointer;">💰 Marcar Pago</button>
+                             <button class="btn btn-secondary waive-quota-btn" data-quota-id="${q.id}" style="padding: 5px 12px; font-size: 0.75rem; cursor: pointer; border-color: var(--text-muted); color: var(--text-muted); background: transparent;">🎁 Isentar</button>
+                           </div>`);
 
                 tr.innerHTML = `
                     <td style="padding: 12px 10px; font-family: var(--font-mono); font-weight: 600;">
@@ -1476,7 +1454,7 @@ window.initAdminPage = function() {
                             }
                         });
                     }
-                } else {
+                } else if (q.pago === 0) {
                     const payBtn = tr.querySelector('.pay-quota-btn');
                     if (payBtn) {
                         payBtn.addEventListener('click', async () => {
@@ -1509,6 +1487,30 @@ window.initAdminPage = function() {
                                 loadDashboardData(authToken);
                             } catch (e) {
                                 alert(e.message);
+                            }
+                        });
+                    }
+
+                    const waiveBtn = tr.querySelector('.waive-quota-btn');
+                    if (waiveBtn) {
+                        waiveBtn.addEventListener('click', async () => {
+                            if (!confirm(`Tem a certeza que deseja ISENTAR / PERDOAR o pagamento da quota ${q.ano} do sócio ${member.nome}?`)) return;
+                            try {
+                                const response = await fetch('/api?action=waive_quota', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${authToken}`
+                                    },
+                                    body: JSON.stringify({ quota_id: q.id })
+                                });
+                                const res = await response.json();
+                                if (!response.ok) throw new Error(res.error || "Erro ao isentar quota.");
+                                
+                                alert(`Quota isentada/perdoada com sucesso!`);
+                                loadDashboardData(authToken);
+                            } catch (err) {
+                                alert(err.message);
                             }
                         });
                     }
@@ -3316,6 +3318,20 @@ async function handleMockRequest(action, initOptions) {
         });
     }
 
+    if (action === 'waive_quota') {
+        const quotaId = parseInt(body.quota_id);
+        const quota = db.quotas.find(q => q.id === quotaId);
+        if (!quota) return response({ error: "Quota não encontrada." }, 404);
+        
+        if (quota.pago === 1) return response({ error: "Quota já se encontra paga." }, 400);
+        if (quota.pago === 2) return response({ error: "Quota já se encontra isenta." }, 400);
+
+        quota.pago = 2;
+
+        localStorage.setItem('arm_mock_db', JSON.stringify(db));
+        return response({ message: "Mock Quota waived." });
+    }
+
     if (action === 'add_transaction') {
         const { tipo, meio_pagamento, descricao, valor, data: tData, categoria } = body;
         db.contabilidade.push({
@@ -3714,20 +3730,23 @@ async function loadSocioDashboard(token) {
                 const tr = document.createElement('tr');
                 tr.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
                 
-                const isPago = q.pago === 1;
-                const statusBadge = isPago 
+                const statusBadge = q.pago === 1 
                     ? `<span style="font-size: 0.75rem; font-weight: 600; color: var(--accent-secondary); background: rgba(0,230,118,0.1); padding: 2px 8px; border-radius: 4px;">Pago</span>`
-                    : `<span style="font-size: 0.75rem; font-weight: 600; color: var(--accent-warning); background: rgba(255,145,0,0.1); padding: 2px 8px; border-radius: 4px;">Pendente</span>`;
+                    : (q.pago === 2
+                        ? `<span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 4px;">Isenta</span>`
+                        : `<span style="font-size: 0.75rem; font-weight: 600; color: var(--accent-warning); background: rgba(255,145,0,0.1); padding: 2px 8px; border-radius: 4px;">Pendente</span>`);
                 
                 const dataPagamento = q.data_pagamento || '-';
                 
                 let actionBtn = '-';
-                if (isPago) {
+                if (q.pago === 1) {
                     actionBtn = `
                         <button class="btn btn-secondary btn-print-quota-receipt" data-quota-id="${q.id}" style="padding: 4px 8px; font-size: 0.75rem; cursor: pointer; border-color: var(--accent-secondary); color: var(--accent-secondary); outline: none;">
                             📄 Imprimir Recibo
                         </button>
                     `;
+                } else if (q.pago === 2) {
+                    actionBtn = `<span style="font-size: 0.8rem; color: var(--text-muted);">Isenta de Pagamento</span>`;
                 }
 
                 tr.innerHTML = `

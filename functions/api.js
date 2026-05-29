@@ -62,6 +62,8 @@ export async function onRequest(context) {
                 return await handleLoginSocio(request, env, corsHeaders);
             case 'login_socio_credentials':
                 return await handleLoginSocioCredentials(request, env.DB, corsHeaders);
+            case 'waive_quota':
+                return await handleWaiveQuota(request, env.DB, corsHeaders);
             case 'get_socio_data':
                 return await handleGetSocioData(request, env.DB, corsHeaders);
             case 'update_socio_profile':
@@ -464,6 +466,42 @@ async function handlePayQuota(request, db, headers) {
         numero_recibo: nextReciboNum, 
         data_pagamento: timestamp 
     }), { status: 200, headers });
+}
+
+// 7B. WAIVE/EXEMPT PENDING QUOTA (ADMIN ONLY)
+async function handleWaiveQuota(request, db, headers) {
+    if (request.method !== 'POST') {
+        return new Response(JSON.stringify({ error: "Method not allowed." }), { status: 405, headers });
+    }
+
+    if (!(await isAuthenticated(request, db))) {
+        return new Response(JSON.stringify({ error: "Unauthorized." }), { status: 401, headers });
+    }
+
+    const { quota_id } = await request.json();
+    if (!quota_id) {
+        return new Response(JSON.stringify({ error: "Quota ID is required." }), { status: 400, headers });
+    }
+
+    // Retrieve quota entry details
+    const quota = await db.prepare(`SELECT * FROM quotas WHERE id = ?`).bind(quota_id).first();
+    if (!quota) {
+        return new Response(JSON.stringify({ error: "Quota not found." }), { status: 404, headers });
+    }
+
+    if (quota.pago === 1) {
+        return new Response(JSON.stringify({ error: "Quota is already paid." }), { status: 400, headers });
+    }
+    if (quota.pago === 2) {
+        return new Response(JSON.stringify({ error: "Quota is already waived/exempt." }), { status: 400, headers });
+    }
+
+    // Mark quota as waived (pago = 2)
+    await db.prepare(`
+        UPDATE quotas SET pago = 2, data_pagamento = NULL, numero_recibo = NULL WHERE id = ?
+    `).bind(quota_id).run();
+
+    return new Response(JSON.stringify({ message: "Quota waived/exempt successfully." }), { status: 200, headers });
 }
 
 // 8. ADD GENERAL TRANSACTION (INCOME / EXPENSE)
