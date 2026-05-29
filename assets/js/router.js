@@ -217,6 +217,14 @@ const routes = {
             if (typeof window.initAdminPage === 'function') window.initAdminPage();
             if (typeof window.initScrollReveal === 'function') window.initScrollReveal();
         }
+    },
+    '/socio': {
+        fragment: 'pages/socio.html',
+        title: 'Área do Sócio - ARM',
+        init: () => {
+            if (typeof window.initSocioPortal === 'function') window.initSocioPortal();
+            if (typeof window.initScrollReveal === 'function') window.initScrollReveal();
+        }
     }
 };
 
@@ -270,6 +278,7 @@ function normalizeHash(hash) {
         'dmr.html': '/dmr',
         'page7.html': '/artigo-modelo',
         'admin.html': '/admin',
+        'socio.html': '/socio',
         
         '/sobre_arm': '/sobre',
         '/corpos_sociais': '/corpos-sociais',
@@ -282,6 +291,7 @@ function normalizeHash(hash) {
         '/dmr': '/dmr',
         '/artigo-modelo': '/artigo-modelo',
         '/admin': '/admin',
+        '/socio': '/socio',
         '/rede-arm': '/'
     };
     

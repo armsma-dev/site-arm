@@ -58,6 +58,12 @@ export async function onRequest(context) {
                 return await handleEditTransaction(request, env.DB, corsHeaders);
             case 'delete_transaction':
                 return await handleDeleteTransaction(request, env.DB, corsHeaders);
+            case 'login_socio':
+                return await handleLoginSocio(request, env, corsHeaders);
+            case 'get_socio_data':
+                return await handleGetSocioData(request, env.DB, corsHeaders);
+            case 'update_socio_profile':
+                return await handleUpdateSocioProfile(request, env.DB, corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: "Invalid action." }), {
                     status: 400,
@@ -142,6 +148,11 @@ async function handleInit(db, headers) {
         );`,
         `CREATE TABLE IF NOT EXISTS admin_sessions (
             token TEXT PRIMARY KEY,
+            expires_at INTEGER
+        );`,
+        `CREATE TABLE IF NOT EXISTS socio_sessions (
+            token TEXT PRIMARY KEY,
+            socio_id INTEGER,
             expires_at INTEGER
         );`
     ];
@@ -690,4 +701,141 @@ async function handleDeleteTransaction(request, db, headers) {
 
     return new Response(JSON.stringify({ message: "Transaction deleted successfully." }), { status: 200, headers });
 }
+
+// ==========================================================================
+// 15. MEMBER PORTAL - LOGIN
+// ==========================================================================
+async function handleLoginSocio(request, env, headers) {
+    if (request.method !== 'POST') {
+        return new Response(JSON.stringify({ error: "Method not allowed." }), { status: 405, headers });
+    }
+
+    const { credential, isMock, email: mockEmail } = await request.json();
+    let email = '';
+
+    if (isMock) {
+        email = mockEmail;
+    } else {
+        if (!credential) {
+            return new Response(JSON.stringify({ error: "Missing Google login credential token." }), { status: 400, headers });
+        }
+
+        try {
+            const tokeninfoUrl = `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`;
+            const response = await fetch(tokeninfoUrl);
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(errText || "Invalid token response from Google verification endpoint.");
+            }
+            const payload = await response.json();
+            
+            // Check Google Client ID matches if defined
+            const expectedClientId = env.GOOGLE_CLIENT_ID;
+            if (expectedClientId && payload.aud !== expectedClientId) {
+                return new Response(JSON.stringify({ error: "Google client ID mismatch." }), { status: 403, headers });
+            }
+            if (payload.email_verified !== 'true' && payload.email_verified !== true) {
+                return new Response(JSON.stringify({ error: "The Google account email is not verified." }), { status: 403, headers });
+            }
+            email = payload.email;
+        } catch (e) {
+            console.error("Google token verification failed:", e);
+            return new Response(JSON.stringify({ error: `Google verification failed: ${e.message}` }), { status: 401, headers });
+        }
+    }
+
+    if (!email) {
+        return new Response(JSON.stringify({ error: "Could not retrieve user email from Google." }), { status: 400, headers });
+    }
+
+    // Verify email is registered in 'socios' table and state is Active
+    const member = await env.DB.prepare(`
+        SELECT id, nome, numero_socio, estado FROM socios WHERE LOWER(email) = LOWER(?)
+    `).bind(email.trim()).first();
+
+    if (!member) {
+        return new Response(JSON.stringify({ error: `O e-mail '${email}' não está associado a nenhum sócio registado na ARM. Por favor, contacte a direção.` }), { status: 403, headers });
+    }
+
+    if (member.estado !== 'Ativo') {
+        return new Response(JSON.stringify({ error: "A sua conta de sócio não está ativa. Por favor, contacte a direção." }), { status: 403, headers });
+    }
+
+    // Generate random member session token
+    const token = crypto.randomUUID();
+    const expiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours validity
+
+    await env.DB.prepare(`
+        INSERT INTO socio_sessions (token, socio_id, expires_at) VALUES (?, ?, ?)
+    `).bind(token, member.id, expiresAt).run();
+
+    return new Response(JSON.stringify({ token, expires_at: expiresAt }), { status: 200, headers });
+}
+
+// Helper to check member authentication
+async function getAuthenticatedSocioId(request, db) {
+    const authHeader = request.headers.get('Authorization') || '';
+    const token = authHeader.replace(/^Bearer\s+/, '').trim();
+
+    if (!token) return null;
+
+    const session = await db.prepare(`
+        SELECT socio_id, expires_at FROM socio_sessions WHERE token = ?
+    `).bind(token).first();
+
+    if (!session) return null;
+
+    if (Date.now() > session.expires_at) {
+        // Clean up expired session
+        await db.prepare(`DELETE FROM socio_sessions WHERE token = ?`).bind(token).run();
+        return null;
+    }
+
+    return session.socio_id;
+}
+
+// ==========================================================================
+// 16. MEMBER PORTAL - GET PROFILE AND QUOTAS
+// ==========================================================================
+async function handleGetSocioData(request, db, headers) {
+    const socioId = await getAuthenticatedSocioId(request, db);
+    if (!socioId) {
+        return new Response(JSON.stringify({ error: "Sessão inválida ou expirada." }), { status: 401, headers });
+    }
+
+    // Clean up expired sessions periodically on data fetch
+    await db.prepare(`DELETE FROM socio_sessions WHERE expires_at < ?`).bind(Date.now()).run();
+
+    const socio = await db.prepare(`SELECT * FROM socios WHERE id = ?`).bind(socioId).first();
+    const quotas = (await db.prepare(`SELECT * FROM quotas WHERE socio_id = ? ORDER BY ano DESC`).bind(socioId).all()).results;
+
+    return new Response(JSON.stringify({ socio, quotas }), { status: 200, headers });
+}
+
+// ==========================================================================
+// 17. MEMBER PORTAL - UPDATE PROFILE DIRECTLY
+// ==========================================================================
+async function handleUpdateSocioProfile(request, db, headers) {
+    if (request.method !== 'POST') {
+        return new Response(JSON.stringify({ error: "Method not allowed." }), { status: 405, headers });
+    }
+
+    const socioId = await getAuthenticatedSocioId(request, db);
+    if (!socioId) {
+        return new Response(JSON.stringify({ error: "Sessão inválida ou expirada." }), { status: 401, headers });
+    }
+
+    const { telemovel, email, morada } = await request.json();
+
+    if (!email || !telemovel || !morada) {
+        return new Response(JSON.stringify({ error: "Todos os campos de atualização são obrigatórios." }), { status: 400, headers });
+    }
+
+    await db.prepare(`
+        UPDATE socios SET telemovel = ?, email = ?, morada = ? WHERE id = ?
+    `).bind(telemovel, email, morada, socioId).run();
+
+    return new Response(JSON.stringify({ message: "Perfil atualizado com sucesso." }), { status: 200, headers });
+}
+
 

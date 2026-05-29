@@ -3399,7 +3399,305 @@ async function handleMockRequest(action, initOptions) {
         return response({ message: "Sócio e quotas associadas eliminados com sucesso no Mock DB." });
     }
 
+    if (action === 'login_socio') {
+        const { email } = body;
+        const socio = db.socios.find(s => s.email && s.email.toLowerCase() === email.toLowerCase());
+        if (!socio) {
+            return response({ error: "Este e-mail não corresponde a nenhum sócio ativo registado na ARM. Por favor, contacte a direção." }, 404);
+        }
+        localStorage.setItem('arm_mock_logged_socio_id', socio.id);
+        const mockToken = 'mock-session-socio-' + Date.now();
+        return response({ token: mockToken });
+    }
+
+    if (action === 'get_socio_data') {
+        const socioId = localStorage.getItem('arm_mock_logged_socio_id');
+        const socio = db.socios.find(s => s.id === parseInt(socioId));
+        if (!socio) return response({ error: "Sessão de sócio inválida." }, 401);
+        const quotas = db.quotas.filter(q => q.socio_id === socio.id).sort((a,b) => b.ano - a.ano);
+        return response({ socio, quotas });
+    }
+
+    if (action === 'update_socio_profile') {
+        const socioId = localStorage.getItem('arm_mock_logged_socio_id');
+        const index = db.socios.findIndex(s => s.id === parseInt(socioId));
+        if (index === -1) return response({ error: "Sócio não encontrado." }, 404);
+
+        db.socios[index].telemovel = body.telemovel;
+        db.socios[index].email = body.email;
+        db.socios[index].morada = body.morada;
+
+        localStorage.setItem('arm_mock_db', JSON.stringify(db));
+        return response({ message: "Perfil de sócio atualizado com sucesso no Mock DB." });
+    }
+
     return response({ error: "Mock action not implemented." }, 404);
 }
+
+// ==========================================================================
+// 6. PORTAL DO SÓCIO - MEMBER AREA LOGIC
+// ==========================================================================
+
+window.initSocioPortal = function() {
+    const loginCard = document.getElementById('socio-login-card');
+    const dashboardArea = document.getElementById('socio-dashboard-area');
+    const loginError = document.getElementById('socio-login-error-msg');
+    const mockSocioLogin = document.getElementById('mock-socio-login');
+    const btnMockSocio = document.getElementById('btn-mock-socio-login');
+    const mockSocioEmail = document.getElementById('mock-socio-email');
+    const logoutBtn = document.getElementById('socio-logout-btn');
+    const updateForm = document.getElementById('socio-update-form');
+
+    if (!loginCard || !dashboardArea) return;
+
+    function showLogin() {
+        loginCard.style.display = 'block';
+        dashboardArea.style.display = 'none';
+        if (loginError) loginError.style.display = 'none';
+        
+        initSocioGoogleSignIn();
+    }
+
+    function showDashboard() {
+        loginCard.style.display = 'none';
+        dashboardArea.style.display = 'flex';
+    }
+
+    // Google Sign-In Callback for Members
+    async function handleSocioGoogleCredentialResponse(response) {
+        if (loginError) loginError.style.display = 'none';
+        try {
+            const fetchRes = await fetch('/api?action=login_socio', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ credential: response.credential })
+            });
+            const result = await fetchRes.json();
+            if (!fetchRes.ok) throw new Error(result.error || "Erro de autenticação.");
+            
+            localStorage.setItem('socio_token', result.token);
+            loadSocioDashboard(result.token);
+        } catch (err) {
+            if (loginError) {
+                loginError.style.display = 'block';
+                loginError.textContent = err.message;
+            }
+        }
+    }
+
+    function initSocioGoogleSignIn() {
+        const isLocal = ['localhost', '127.0.0.1', '192.168.', '10.', '172.'].some(ip => window.location.hostname.includes(ip)) || window.location.hostname === '';
+        
+        if (window.google && typeof GOOGLE_CLIENT_ID !== 'undefined' && GOOGLE_CLIENT_ID && GOOGLE_CLIENT_ID !== "YOUR_GOOGLE_CLIENT_ID_HERE") {
+            try {
+                google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID,
+                    callback: handleSocioGoogleCredentialResponse
+                });
+                google.accounts.id.renderButton(
+                    document.getElementById("google-socio-signin-btn"),
+                    { theme: "outline", size: "large", width: 280, text: "signin_with" }
+                );
+            } catch (err) {
+                console.error("Failed to initialize Google Sign-In:", err);
+            }
+        } else {
+            const btnContainer = document.getElementById("google-socio-signin-btn");
+            if (btnContainer && !isLocal) {
+                btnContainer.innerHTML = '<span style="font-size:0.8rem; color:var(--text-secondary);">Google login pendente de configuração do Client ID.</span>';
+            }
+        }
+
+        if (isLocal && mockSocioLogin) {
+            mockSocioLogin.style.display = 'block';
+        }
+    }
+
+    // Local simulator click
+    if (btnMockSocio && mockSocioEmail) {
+        btnMockSocio.addEventListener('click', async () => {
+            const email = mockSocioEmail.value;
+            if (loginError) loginError.style.display = 'none';
+            try {
+                const response = await fetch('/api?action=login_socio', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ isMock: true, email })
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || "Erro ao simular login.");
+                
+                localStorage.setItem('socio_token', result.token);
+                loadSocioDashboard(result.token);
+            } catch (err) {
+                if (loginError) {
+                    loginError.style.display = 'block';
+                    loginError.textContent = err.message;
+                }
+            }
+        });
+    }
+
+    // Logout
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('socio_token');
+            showLogin();
+        });
+    }
+
+    // Submit profile update request
+    if (updateForm) {
+        updateForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem('socio_token');
+            const data = {
+                telemovel: document.getElementById('socio-update-mobile').value,
+                email: document.getElementById('socio-update-email').value,
+                morada: document.getElementById('socio-update-address').value
+            };
+            try {
+                const response = await fetch('/api?action=update_socio_profile', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || "Erro ao submeter pedido.");
+                alert("Perfil de sócio atualizado com sucesso!");
+                loadSocioDashboard(token);
+            } catch (err) {
+                alert(err.message);
+            }
+        });
+    }
+
+    // Check token on load
+    const token = localStorage.getItem('socio_token');
+    if (token) {
+        loadSocioDashboard(token);
+    } else {
+        showLogin();
+    }
+};
+
+async function loadSocioDashboard(token) {
+    const loginCard = document.getElementById('socio-login-card');
+    const dashboardArea = document.getElementById('socio-dashboard-area');
+    if (!loginCard || !dashboardArea) return;
+
+    try {
+        const response = await fetch('/api?action=get_socio_data', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const result = await response.json();
+        
+        if (!response.ok) {
+            // Token expired or invalid
+            localStorage.removeItem('socio_token');
+            loginCard.style.display = 'block';
+            dashboardArea.style.display = 'none';
+            const loginError = document.getElementById('socio-login-error-msg');
+            if (loginError) {
+                loginError.style.display = 'block';
+                loginError.textContent = result.error || "Sessão expirada. Inicie sessão novamente.";
+            }
+            return;
+        }
+
+        // 1. Render Profile Details
+        const socio = result.socio;
+        document.getElementById('socio-welcome-title').textContent = `Olá, ${socio.nome.split(' ')[0]}!`;
+        document.getElementById('socio-profile-name').textContent = socio.nome;
+        document.getElementById('socio-profile-num').textContent = socio.numero_socio;
+        document.getElementById('socio-profile-nif').textContent = socio.nif || '-';
+        document.getElementById('socio-profile-cc').textContent = socio.cartao_cidadao || '-';
+        document.getElementById('socio-profile-mobile').textContent = socio.telemovel || socio.telefone || '-';
+        document.getElementById('socio-profile-email').textContent = socio.email || '-';
+        document.getElementById('socio-profile-address').textContent = socio.morada || '-';
+        document.getElementById('socio-profile-admissao').textContent = socio.data_admissao || '-';
+        
+        // Status badge styling
+        const statusEl = document.getElementById('socio-profile-status');
+        statusEl.textContent = socio.estado;
+        if (socio.estado === 'Ativo') {
+            statusEl.style.background = 'rgba(0, 230, 118, 0.1)';
+            statusEl.style.color = 'var(--accent-secondary)';
+        } else {
+            statusEl.style.background = 'rgba(255, 23, 68, 0.1)';
+            statusEl.style.color = 'var(--accent-danger)';
+        }
+
+        if (socio.fotografia) {
+            document.getElementById('socio-profile-img').src = socio.fotografia;
+        }
+
+        // Prepopulate update form
+        document.getElementById('socio-update-mobile').value = socio.telemovel || '';
+        document.getElementById('socio-update-email').value = socio.email || '';
+        document.getElementById('socio-update-address').value = socio.morada || '';
+
+        // 2. Render Quotas Table
+        const quotasBody = document.getElementById('socio-quotas-table-body');
+        quotasBody.innerHTML = '';
+
+        if (result.quotas.length === 0) {
+            quotasBody.innerHTML = `<tr><td colspan="5" style="padding: 24px; text-align: center; color: var(--text-muted);">Não existem quotas registadas na sua conta.</td></tr>`;
+        } else {
+            result.quotas.forEach(q => {
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
+                
+                const isPago = q.pago === 1;
+                const statusBadge = isPago 
+                    ? `<span style="font-size: 0.75rem; font-weight: 600; color: var(--accent-secondary); background: rgba(0,230,118,0.1); padding: 2px 8px; border-radius: 4px;">Pago</span>`
+                    : `<span style="font-size: 0.75rem; font-weight: 600; color: var(--accent-warning); background: rgba(255,145,0,0.1); padding: 2px 8px; border-radius: 4px;">Pendente</span>`;
+                
+                const dataPagamento = q.data_pagamento || '-';
+                
+                let actionBtn = '-';
+                if (isPago) {
+                    actionBtn = `
+                        <button class="btn btn-secondary btn-print-quota-receipt" data-quota-id="${q.id}" style="padding: 4px 8px; font-size: 0.75rem; cursor: pointer; border-color: var(--accent-secondary); color: var(--accent-secondary); outline: none;">
+                            📄 Imprimir Recibo
+                        </button>
+                    `;
+                }
+
+                tr.innerHTML = `
+                    <td style="padding: 12px 10px; font-weight: 600;">${q.ano}</td>
+                    <td style="padding: 12px 10px; font-family: var(--font-mono);">${parseFloat(q.valor).toFixed(2)}€</td>
+                    <td style="padding: 12px 10px; text-align: center;">${statusBadge}</td>
+                    <td style="padding: 12px 10px; font-family: var(--font-mono);">${dataPagamento}</td>
+                    <td style="padding: 12px 10px; text-align: right;">${actionBtn}</td>
+                `;
+                quotasBody.appendChild(tr);
+
+                // Bind print quota receipt button
+                if (isPago) {
+                    const downloadBtn = tr.querySelector('.btn-print-quota-receipt');
+                    if (downloadBtn) {
+                        downloadBtn.addEventListener('click', () => {
+                            if (typeof window.generateReceiptPDF === 'function') {
+                                window.generateReceiptPDF(socio, q);
+                            } else {
+                                alert("Erro: Gerador de PDFs não foi carregado.");
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        loginCard.style.display = 'none';
+        dashboardArea.style.display = 'flex';
+    } catch (err) {
+        console.error("Error loading member dashboard:", err);
+    }
+}
+
 
 
