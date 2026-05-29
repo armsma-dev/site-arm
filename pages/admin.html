@@ -377,6 +377,19 @@
                     </div>
                 </div>
 
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Foto de Perfil (Upload)</label>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <img id="edit-socio-photo-preview" src="assets/images/logo2-65x121.png" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-secondary); background: rgba(0,0,0,0.2);">
+                        <input type="file" id="edit-socio-photo-file" accept="image/*" style="display: none;">
+                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('edit-socio-photo-file').click()" style="padding: 8px 16px; font-size: 0.85rem; cursor: pointer; outline: none; margin: 0;">
+                            Alterar Foto 📷
+                        </button>
+                        <span id="edit-socio-photo-filename" style="font-size: 0.85rem; color: var(--text-muted); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 200px;">Nenhuma foto selecionada</span>
+                    </div>
+                    <input type="hidden" id="edit-socio-photo">
+                </div>
+
                 <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 10px;">
                                     <button type="button" id="btn-cancel-edit" class="btn btn-secondary" style="padding: 10px 20px; font-size: 0.9rem; cursor: pointer;">Cancelar</button>
                                     <button type="submit" class="btn btn-primary" style="padding: 10px 24px; font-size: 0.9rem; cursor: pointer;">Guardar Alterações 💾</button>

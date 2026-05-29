@@ -642,7 +642,7 @@ async function handleEditMember(request, db, headers) {
     }
 
     const data = await request.json();
-    const { id, numero_socio, estado, nome, email, telemovel, nif, cartao_cidadao, morada, iban, data_admissao } = data;
+    const { id, numero_socio, estado, nome, email, telemovel, nif, cartao_cidadao, morada, iban, data_admissao, fotografia } = data;
 
     if (!id || !numero_socio || !estado || !nome || !email || !telemovel || !nif || !cartao_cidadao || !morada || !data_admissao) {
         return new Response(JSON.stringify({ error: "Mandatory member fields are missing." }), { status: 400, headers });
@@ -668,7 +668,8 @@ async function handleEditMember(request, db, headers) {
             cartao_cidadao = ?,
             morada = ?,
             iban = ?,
-            data_admissao = ?
+            data_admissao = ?,
+            fotografia = ?
         WHERE id = ?
     `).bind(
         numero_socio,
@@ -681,6 +682,7 @@ async function handleEditMember(request, db, headers) {
         morada,
         iban || '',
         data_admissao,
+        fotografia || '',
         id
     ).run();
 

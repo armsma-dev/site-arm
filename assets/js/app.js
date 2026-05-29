@@ -947,10 +947,54 @@ window.initAdminPage = function() {
         const closeModal = () => {
             editModal.style.display = 'none';
             editForm.reset();
+            const preview = document.getElementById('edit-socio-photo-preview');
+            if (preview) preview.src = 'assets/images/logo2-65x121.png';
+            const filename = document.getElementById('edit-socio-photo-filename');
+            if (filename) filename.textContent = 'Nenhuma foto selecionada';
+            const photoVal = document.getElementById('edit-socio-photo');
+            if (photoVal) photoVal.value = '';
+            const adminPhotoFileInput = document.getElementById('edit-socio-photo-file');
+            if (adminPhotoFileInput) adminPhotoFileInput.value = '';
         };
 
         if (btnCloseEditModal) btnCloseEditModal.addEventListener('click', closeModal);
         if (btnCancelEdit) btnCancelEdit.addEventListener('click', closeModal);
+
+        // Admin Photo uploader listener
+        const adminPhotoFileInput = document.getElementById('edit-socio-photo-file');
+        if (adminPhotoFileInput) {
+            adminPhotoFileInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                // Max size check: 1.5MB
+                if (file.size > 1.5 * 1024 * 1024) {
+                    alert("A fotografia é demasiado grande. Escolha uma imagem até 1.5 MB.");
+                    adminPhotoFileInput.value = '';
+                    return;
+                }
+                
+                try {
+                    const base64 = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result);
+                        reader.onerror = err => reject(err);
+                        reader.readAsDataURL(file);
+                    });
+                    
+                    const hiddenInput = document.getElementById('edit-socio-photo');
+                    if (hiddenInput) hiddenInput.value = base64;
+                    
+                    const preview = document.getElementById('edit-socio-photo-preview');
+                    if (preview) preview.src = base64;
+                    
+                    const filename = document.getElementById('edit-socio-photo-filename');
+                    if (filename) filename.textContent = file.name;
+                } catch (err) {
+                    alert("Erro ao processar a imagem: " + err.message);
+                }
+            });
+        }
 
         // Fechar se clicar fora do modal
         window.addEventListener('click', (e) => {
@@ -974,7 +1018,8 @@ window.initAdminPage = function() {
                 cartao_cidadao: document.getElementById('edit-socio-cc').value,
                 morada: document.getElementById('edit-socio-morada').value,
                 iban: document.getElementById('edit-socio-iban').value,
-                data_admissao: document.getElementById('edit-socio-admissao').value
+                data_admissao: document.getElementById('edit-socio-admissao').value,
+                fotografia: document.getElementById('edit-socio-photo').value
             };
 
             try {
@@ -1337,14 +1382,24 @@ window.initAdminPage = function() {
                         telemovel: "Telemóvel", telefone: "Telefone", email: "E-mail", iban: "IBAN",
                         profissao: "Profissão", habilitacoes: "Habilitações", nif: "NIF", cartao_cidadao: "C. Cidadão",
                         morada: "Morada", cod_postal: "Cód. Postal", freguesia: "Freguesia", concelho: "Concelho",
-                        distrito: "Distrito", pais: "País", fotografia: "Foto (URL)"
+                        distrito: "Distrito", pais: "País", fotografia: "Foto (Upload)"
                     };
                     
                     for (const [key, val] of Object.entries(dados)) {
                         const oldVal = socio ? socio[key] : '';
                         if (val !== undefined && val !== null && val.toString().trim() !== (oldVal || '').toString().trim()) {
                             const label = ptKeys[key] || key;
-                            diffHtml += `<div><strong>${label}:</strong> <span style="color:var(--accent-danger); text-decoration:line-through;">${oldVal || '(vazio)'}</span> ➔ <span style="color:var(--accent-secondary); font-weight:600;">${val || '(vazio)'}</span></div>`;
+                            if (key === 'fotografia') {
+                                const oldImg = oldVal && !oldVal.includes('quotagest.pt')
+                                    ? `<img src="${oldVal}" style="width: 32px; height: 32px; object-fit: cover; border-radius: 50%; border: 1px solid var(--border-glass); vertical-align: middle;" title="Foto antiga">`
+                                    : `<span style="font-size:0.75rem; color:var(--text-muted);">sem foto</span>`;
+                                const newImg = val
+                                    ? `<img src="${val}" style="width: 32px; height: 32px; object-fit: cover; border-radius: 50%; border: 1px solid var(--accent-secondary); vertical-align: middle;" title="Nova foto proposta">`
+                                    : `<span style="font-size:0.75rem; color:var(--text-muted);">sem foto</span>`;
+                                diffHtml += `<div style="display: flex; align-items: center; gap: 6px; margin: 4px 0;"><strong>${label}:</strong> ${oldImg} ➔ ${newImg}</div>`;
+                            } else {
+                                diffHtml += `<div><strong>${label}:</strong> <span style="color:var(--accent-danger); text-decoration:line-through;">${oldVal || '(vazio)'}</span> ➔ <span style="color:var(--accent-secondary); font-weight:600;">${val || '(vazio)'}</span></div>`;
+                            }
                         }
                     }
                     diffHtml += '</div>';
@@ -1429,7 +1484,7 @@ window.initAdminPage = function() {
 
                 tr.innerHTML = `
                     <td style="padding: 12px 10px;">
-                        <img src="${s.fotografia || 'assets/images/logo2-65x121.png'}" style="width: 38px; height: 38px; border-radius: 4px; object-fit: cover; border: 1px solid var(--border-glass);">
+                        <img src="${s.fotografia && !s.fotografia.includes('quotagest.pt') ? s.fotografia : 'assets/images/logo2-65x121.png'}" style="width: 38px; height: 38px; border-radius: 4px; object-fit: cover; border: 1px solid var(--border-glass);">
                     </td>
                     <td style="padding: 12px 10px; font-family: var(--font-mono); font-weight: 700; color: var(--accent-primary);">
                         ${String(s.numero_socio).padStart(4, '0')}
@@ -1506,6 +1561,20 @@ window.initAdminPage = function() {
                         document.getElementById('edit-socio-morada').value = s.morada || '';
                         document.getElementById('edit-socio-iban').value = s.iban || '';
                         document.getElementById('edit-socio-admissao').value = s.data_admissao || '';
+                        
+                        const editPhoto = document.getElementById('edit-socio-photo');
+                        const editPhotoPreview = document.getElementById('edit-socio-photo-preview');
+                        const editPhotoFilename = document.getElementById('edit-socio-photo-filename');
+                        
+                        if (s.fotografia && !s.fotografia.includes('quotagest.pt')) {
+                            if (editPhoto) editPhoto.value = s.fotografia;
+                            if (editPhotoPreview) editPhotoPreview.src = s.fotografia;
+                            if (editPhotoFilename) editPhotoFilename.textContent = "Foto atual guardada";
+                        } else {
+                            if (editPhoto) editPhoto.value = '';
+                            if (editPhotoPreview) editPhotoPreview.src = 'assets/images/logo2-65x121.png';
+                            if (editPhotoFilename) editPhotoFilename.textContent = "Nenhuma foto selecionada";
+                        }
                         
                         modal.style.display = 'flex';
                     });
@@ -3168,25 +3237,46 @@ function getMockDatabase() {
     let db = localStorage.getItem('arm_mock_db');
     let dbVersion = localStorage.getItem('arm_mock_db_version');
 
+    function sanitizePhotos(database) {
+        if (database && database.socios) {
+            database.socios.forEach(s => {
+                if (s.fotografia && s.fotografia.includes('quotagest.pt')) {
+                    s.fotografia = '';
+                }
+            });
+        }
+        if (database && database.candidatos) {
+            database.candidatos.forEach(c => {
+                if (c.fotografia && c.fotografia.includes('quotagest.pt')) {
+                    c.fotografia = '';
+                }
+            });
+        }
+        return database;
+    }
+
     if (!db || dbVersion !== SEED_VERSION) {
         console.log("Mock Database initialized or updated with seeded data.");
-        localStorage.setItem('arm_mock_db', JSON.stringify(initialDb));
+        const cleaned = sanitizePhotos(initialDb);
+        localStorage.setItem('arm_mock_db', JSON.stringify(cleaned));
         localStorage.setItem('arm_mock_db_version', SEED_VERSION);
-        return initialDb;
+        return cleaned;
     }
 
     try {
         const parsed = JSON.parse(db);
         if (parsed && typeof parsed === 'object' && parsed.socios && parsed.candidatos) {
-            return parsed;
+            const cleaned = sanitizePhotos(parsed);
+            return cleaned;
         } else {
             throw new Error("Invalid structure");
         }
     } catch (e) {
         console.warn("Mock Database corrupted. Resetting to initial seed.", e);
-        localStorage.setItem('arm_mock_db', JSON.stringify(initialDb));
+        const cleaned = sanitizePhotos(initialDb);
+        localStorage.setItem('arm_mock_db', JSON.stringify(cleaned));
         localStorage.setItem('arm_mock_db_version', SEED_VERSION);
-        return initialDb;
+        return cleaned;
     }
 }
 
@@ -3529,7 +3619,8 @@ async function handleMockRequest(action, initOptions) {
             cartao_cidadao: body.cartao_cidadao,
             morada: body.morada,
             iban: body.iban,
-            data_admissao: body.data_admissao
+            data_admissao: body.data_admissao,
+            fotografia: body.fotografia
         };
 
         localStorage.setItem('arm_mock_db', JSON.stringify(db));
@@ -3800,6 +3891,42 @@ window.initSocioPortal = function() {
         });
     }
 
+    // Photo uploader listener
+    const photoFileInput = document.getElementById('socio-update-photo-file');
+    if (photoFileInput) {
+        photoFileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Max size check: 1.5MB
+            if (file.size > 1.5 * 1024 * 1024) {
+                alert("A fotografia é demasiado grande. Escolha uma imagem até 1.5 MB.");
+                photoFileInput.value = '';
+                return;
+            }
+            
+            try {
+                const base64 = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = err => reject(err);
+                    reader.readAsDataURL(file);
+                });
+                
+                const hiddenInput = document.getElementById('socio-update-photo');
+                if (hiddenInput) hiddenInput.value = base64;
+                
+                const preview = document.getElementById('socio-update-photo-preview');
+                if (preview) preview.src = base64;
+                
+                const filename = document.getElementById('socio-update-photo-filename');
+                if (filename) filename.textContent = file.name;
+            } catch (err) {
+                alert("Erro ao processar a imagem: " + err.message);
+            }
+        });
+    }
+
     // Submit profile update request
     if (updateForm) {
         updateForm.addEventListener('submit', async (e) => {
@@ -3897,9 +4024,8 @@ async function loadSocioDashboard(token) {
             statusEl.style.color = 'var(--accent-danger)';
         }
 
-        if (socio.fotografia) {
-            document.getElementById('socio-profile-img').src = socio.fotografia;
-        }
+        const fotoUrl = socio.fotografia && !socio.fotografia.includes('quotagest.pt') ? socio.fotografia : 'assets/images/logo2-65x121.png';
+        document.getElementById('socio-profile-img').src = fotoUrl;
 
         // Prepopulate update form
         document.getElementById('socio-update-mobile').value = socio.telemovel || '';
@@ -3916,7 +4042,16 @@ async function loadSocioDashboard(token) {
         document.getElementById('socio-update-concelho').value = socio.concelho || '';
         document.getElementById('socio-update-distrito').value = socio.distrito || '';
         document.getElementById('socio-update-pais').value = socio.pais || '';
-        document.getElementById('socio-update-photo').value = socio.fotografia || '';
+
+        // Handle photo uploader states
+        const hasValidPhoto = socio.fotografia && !socio.fotografia.includes('quotagest.pt');
+        document.getElementById('socio-update-photo').value = hasValidPhoto ? socio.fotografia : '';
+        const updatePreview = document.getElementById('socio-update-photo-preview');
+        if (updatePreview) updatePreview.src = fotoUrl;
+        const updateFilename = document.getElementById('socio-update-photo-filename');
+        if (updateFilename) {
+            updateFilename.textContent = hasValidPhoto ? "Foto atual guardada" : "Nenhuma foto selecionada";
+        }
 
         // 2. Render Quotas Table
         const quotasBody = document.getElementById('socio-quotas-table-body');
