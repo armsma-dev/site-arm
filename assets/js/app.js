@@ -564,6 +564,7 @@ window.initAdminPage = function() {
     function showDashboard() {
         loginCard.style.display = 'none';
         dashboardArea.style.display = 'flex';
+        resetAdminInactivityTimer();
     }
 
     // Callback para lidar com o login do Google com sucesso
@@ -1800,6 +1801,34 @@ window.initAdminPage = function() {
                 }
             });
         }
+    }
+
+    // Inactivity timeout for Admin Portal (15 minutes)
+    let adminInactivityTimeout;
+    const adminTimeoutDuration = 15 * 60 * 1000; // 15 mins
+
+    function resetAdminInactivityTimer() {
+        clearTimeout(adminInactivityTimeout);
+        if (localStorage.getItem('admin_token')) {
+            adminInactivityTimeout = setTimeout(logoutAdminDueToInactivity, adminTimeoutDuration);
+        }
+    }
+
+    function logoutAdminDueToInactivity() {
+        localStorage.removeItem('admin_token');
+        showLogin();
+        alert("A sua sessão de administração expirou por inatividade. Por favor, inicie sessão novamente.");
+    }
+
+    // Bind interaction events to reset timer
+    const adminActivityEvents = ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart'];
+    adminActivityEvents.forEach(evt => {
+        document.addEventListener(evt, resetAdminInactivityTimer, true);
+    });
+
+    // Start timer initially if logged in
+    if (localStorage.getItem('admin_token')) {
+        resetAdminInactivityTimer();
     }
 };
 
@@ -3806,6 +3835,7 @@ window.initSocioPortal = function() {
     function showDashboard() {
         loginCard.style.display = 'none';
         dashboardArea.style.display = 'flex';
+        resetSocioInactivityTimer();
     }
 
     // Google Sign-In Callback for Members
@@ -3968,10 +3998,34 @@ window.initSocioPortal = function() {
         });
     }
 
+    // Inactivity timeout for Member Portal (15 minutes)
+    let socioInactivityTimeout;
+    const socioTimeoutDuration = 15 * 60 * 1000; // 15 mins
+
+    function resetSocioInactivityTimer() {
+        clearTimeout(socioInactivityTimeout);
+        if (localStorage.getItem('socio_token')) {
+            socioInactivityTimeout = setTimeout(logoutSocioDueToInactivity, socioTimeoutDuration);
+        }
+    }
+
+    function logoutSocioDueToInactivity() {
+        localStorage.removeItem('socio_token');
+        showLogin();
+        alert("A sua sessão de sócio expirou por inatividade. Por favor, inicie sessão novamente.");
+    }
+
+    // Bind interaction events to reset timer
+    const socioActivityEvents = ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart'];
+    socioActivityEvents.forEach(evt => {
+        document.addEventListener(evt, resetSocioInactivityTimer, true);
+    });
+
     // Check token on load
     const token = localStorage.getItem('socio_token');
     if (token) {
         loadSocioDashboard(token);
+        resetSocioInactivityTimer();
     } else {
         showLogin();
     }
