@@ -1347,11 +1347,46 @@ window.initAdminPage = function() {
                         </span>
                     </td>
                     <td style="padding: 12px 10px; text-align: right; white-space: nowrap;">
-                        <button class="btn btn-secondary edit-member-btn" data-id="${s.id}" style="padding: 4px 8px; font-size: 0.75rem; cursor: pointer; border-color: var(--accent-secondary); color: var(--accent-secondary); margin-right: 4px; min-width: 32px;">✏️</button>
-                        <button class="btn btn-secondary delete-member-btn" data-id="${s.id}" style="padding: 4px 8px; font-size: 0.75rem; cursor: pointer; border-color: var(--accent-danger); color: var(--accent-danger); min-width: 32px;">🗑️</button>
+                        <button class="btn btn-secondary send-info-btn" data-id="${s.id}" style="padding: 4px 8px; font-size: 0.75rem; cursor: pointer; border-color: var(--accent-primary); color: var(--accent-primary); margin-right: 4px; min-width: 32px;" title="Enviar dados de acesso por email">✉️</button>
+                        <button class="btn btn-secondary edit-member-btn" data-id="${s.id}" style="padding: 4px 8px; font-size: 0.75rem; cursor: pointer; border-color: var(--accent-secondary); color: var(--accent-secondary); margin-right: 4px; min-width: 32px;" title="Editar Sócio">✏️</button>
+                        <button class="btn btn-secondary delete-member-btn" data-id="${s.id}" style="padding: 4px 8px; font-size: 0.75rem; cursor: pointer; border-color: var(--accent-danger); color: var(--accent-danger); min-width: 32px;" title="Eliminar Sócio">🗑️</button>
                     </td>
                 `;
                 sociosBody.appendChild(tr);
+
+                // Associar evento de clique para Enviar Dados do Sócio
+                const sendBtn = tr.querySelector('.send-info-btn');
+                if (sendBtn) {
+                    sendBtn.addEventListener('click', () => {
+                        const email = s.email || '';
+                        const nome = s.nome || '';
+                        const num = s.numero_socio || '';
+                        const nif = s.nif || '';
+                        
+                        const subject = encodeURIComponent("Associação de Radioamadores Marienses - Acesso ao Portal do Sócio");
+                        const bodyText = `Olá ${nome},\n\n` +
+                                         `Já se encontra ativo o novo Portal do Sócio da ARM.\n\n` +
+                                         `Pode aceder ao seu portal pessoal através do seguinte link:\n` +
+                                         `https://www.cu1arm.com/#/socio\n\n` +
+                                         `Para iniciar sessão, poderá utilizar a sua Conta Google (se o e-mail coincidir com o registado) ou utilizar a autenticação por credenciais introduzindo os seguintes dados:\n` +
+                                         `- Número de Sócio: ${num}\n` +
+                                         `- NIF: ${nif}\n\n` +
+                                         `Pedimos que guarde esta informação de forma confidencial.\n\n` +
+                                         `73 da Direção da ARM\n` +
+                                         `Associação de Radioamadores Marienses`;
+                        
+                        const mailtoUrl = `mailto:${encodeURIComponent(email)}?subject=${subject}&body=${encodeURIComponent(bodyText)}`;
+                        
+                        // Copy to clipboard as backup
+                        navigator.clipboard.writeText(bodyText).then(() => {
+                            alert(`Os dados de acesso para o sócio ${nome} foram copiados para a sua área de transferência!\n\nDe seguida, o seu cliente de e-mail será aberto para enviar a mensagem para: ${email}`);
+                            window.location.href = mailtoUrl;
+                        }).catch(err => {
+                            console.error("Falha ao copiar para a área de transferência:", err);
+                            window.location.href = mailtoUrl;
+                        });
+                    });
+                }
 
                 // Associar evento de clique para Editar Sócio
                 const editBtn = tr.querySelector('.edit-member-btn');
