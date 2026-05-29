@@ -68,123 +68,143 @@
         </div>
 
         <!-- 2. PORTAL AREA (ESCONDIDO POR PADRÃO) -->
-        <div id="socio-dashboard-area" style="display: none; flex-direction: column; gap: 32px;">
+        <div id="socio-dashboard-area" style="display: none; flex-direction: column; gap: 24px; max-width: 1100px; margin: 0 auto; width: 100%;">
             
-            <!-- Cabeçalho do Dashboard do Sócio -->
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-glass); padding-bottom: 16px; flex-wrap: wrap; gap: 16px;">
-                <div>
-                    <h2 id="socio-welcome-title" style="margin: 0; color: var(--text-primary); font-size: 1.5rem;">Olá, Sócio!</h2>
-                    <p style="margin: 4px 0 0 0; color: var(--text-muted); font-size: 0.9rem;">Área pessoal e consulta de histórico financeiro.</p>
-                </div>
-                <button id="socio-logout-btn" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem; cursor: pointer; border-color: var(--accent-danger); color: var(--accent-danger);">
-                    Terminar Sessão 🚪
-                </button>
-            </div>
-
-            <div class="socio-dashboard-grid">
+            <!-- Dashboard Main Container -->
+            <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-glass); background: var(--bg-glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: var(--shadow-lg); width: 100%;">
                 
-                <!-- Coluna Esquerda: Ficha & Privacidade -->
-                <div class="socio-dashboard-sidebar">
-                    
-                    <!-- Ficha de Sócio -->
-                    <div class="card" style="padding: 24px; display: flex; flex-direction: column; gap: 20px;">
-                        <div style="text-align: center; border-bottom: 1px solid var(--border-glass); padding-bottom: 20px;">
-                            <img id="socio-profile-img" src="https://img.quotagest.pt/app/img/user_male_1.png" alt="Foto Sócio" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-secondary); box-shadow: var(--shadow-sm); background: rgba(0,0,0,0.2);">
-                            <h3 id="socio-profile-name" style="margin: 12px 0 4px 0; color: var(--text-primary); font-size: 1.15rem; font-weight: 700;">Nome do Sócio</h3>
-                            <span id="socio-profile-status" style="font-size: 0.75rem; font-weight: 600; padding: 2px 10px; border-radius: 20px;">Ativo</span>
+                <!-- Premium Profile Header Banner -->
+                <div style="background: linear-gradient(135deg, rgba(11, 15, 25, 0.9) 0%, rgba(20, 28, 45, 0.95) 100%); padding: 32px; display: flex; align-items: center; gap: 28px; border-bottom: 1px solid var(--border-glass); flex-wrap: wrap; position: relative;">
+                    <div style="position: relative; display: inline-block;">
+                        <img id="socio-profile-img" src="assets/images/logo2-65x121.png" alt="Foto Sócio" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-secondary); box-shadow: var(--shadow-md); background: rgba(0,0,0,0.4);">
+                        <span id="socio-profile-status" style="position: absolute; bottom: 0; right: 0; font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; box-shadow: var(--shadow-sm); text-transform: uppercase; letter-spacing: 0.05em; background: rgba(0, 230, 118, 0.15); color: var(--accent-secondary);">Ativo</span>
+                    </div>
+                    <div style="flex-grow: 1; min-width: 250px;">
+                        <span style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-primary);" id="socio-welcome-title">Olá, Sócio!</span>
+                        <h2 id="socio-profile-name" style="margin: 4px 0 8px 0; color: var(--text-primary); font-family: var(--font-heading); font-size: 1.8rem; font-weight: 700;">Nome do Sócio</h2>
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap; font-size: 0.88rem; color: var(--text-secondary);">
+                            <span>N.º Associado: <strong id="socio-profile-num" style="color: var(--accent-primary); font-family: var(--font-mono);">0</strong></span>
+                            <span>Admissão: <strong id="socio-profile-admissao" style="color: var(--text-primary);">-</strong></span>
                         </div>
+                    </div>
+                    <div>
+                        <button id="socio-logout-btn" class="btn btn-secondary" style="padding: 10px 20px; font-size: 0.85rem; cursor: pointer; border-color: var(--accent-danger); color: var(--accent-danger); border-radius: 8px; background: transparent; transition: var(--transition); font-weight: 600; display: flex; align-items: center; gap: 8px; margin: 0;">
+                            Terminar Sessão 🚪
+                        </button>
+                    </div>
+                </div>
 
-                        <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.85rem;">
-                            <div style="display: flex; justify-content: space-between;">
-                                <span style="color: var(--text-muted);">N.º Associado</span>
-                                <strong id="socio-profile-num" style="color: var(--text-primary);">0</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between;">
-                                <span style="color: var(--text-muted);">NIF</span>
-                                <strong id="socio-profile-nif" style="color: var(--text-primary);">-</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between;">
-                                <span style="color: var(--text-muted);">C. Cidadão</span>
-                                <strong id="socio-profile-cc" style="color: var(--text-primary);">-</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between;">
-                                <span style="color: var(--text-muted);">Telemóvel</span>
-                                <strong id="socio-profile-mobile" style="color: var(--text-primary);">-</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between;">
-                                <span style="color: var(--text-muted);">E-mail</span>
-                                <strong id="socio-profile-email" style="color: var(--text-primary);">-</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between;">
-                                <span style="color: var(--text-muted);">Perfil QRZ</span>
-                                <strong id="socio-profile-qrz" style="color: var(--text-primary);">-</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; flex-direction: column; gap: 4px;">
-                                <span style="color: var(--text-muted);">Morada</span>
-                                <strong id="socio-profile-address" style="color: var(--text-primary); line-height: 1.4;">-</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between;">
-                                <span style="color: var(--text-muted);">Admissão</span>
-                                <strong id="socio-profile-admissao" style="color: var(--text-primary);">-</strong>
+                <!-- Navigation Tabs -->
+                <div style="display: flex; background: rgba(0, 0, 0, 0.2); border-bottom: 1px solid var(--border-glass); overflow-x: auto; scrollbar-width: none;">
+                    <button class="socio-tab-btn active" data-tab="ficha">
+                        👤 Minha Ficha
+                    </button>
+                    <button class="socio-tab-btn" data-tab="quotas">
+                        💳 Quotas & Recibos
+                    </button>
+                    <button class="socio-tab-btn" data-tab="atualizar">
+                        📝 Solicitar Atualização
+                    </button>
+                </div>
+
+                <!-- Tab Contents Area -->
+                <div style="padding: 36px 32px;">
+                    
+                    <!-- TAB 1: FICHA INDIVIDUAL DE SÓCIO -->
+                    <div id="tab-ficha" class="socio-tab-content active-content">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; align-items: start;">
+                            
+                            <!-- Sub-coluna 1: Dados Cadastrais -->
+                            <div>
+                                <h3 style="color: var(--text-primary); margin: 0 0 20px 0; font-size: 1.15rem; font-weight: 700; font-family: var(--font-heading); border-bottom: 1px solid var(--border-glass); padding-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: var(--accent-primary);">ℹ️</span> Informações Gerais
+                                </h3>
+                                
+                                <div style="display: flex; flex-direction: column; gap: 14px; font-size: 0.9rem;">
+                                    <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 8px;">
+                                        <span style="color: var(--text-secondary);">NIF (Contribuinte)</span>
+                                        <strong id="socio-profile-nif" style="color: var(--text-primary); font-family: var(--font-mono);">-</strong>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 8px;">
+                                        <span style="color: var(--text-secondary);">Cartão de Cidadão</span>
+                                        <strong id="socio-profile-cc" style="color: var(--text-primary); font-family: var(--font-mono);">-</strong>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 8px;">
+                                        <span style="color: var(--text-secondary);">Telemóvel</span>
+                                        <strong id="socio-profile-mobile" style="color: var(--text-primary);">-</strong>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 8px;">
+                                        <span style="color: var(--text-secondary);">E-mail Principal</span>
+                                        <strong id="socio-profile-email" style="color: var(--text-primary);">-</strong>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 8px;">
+                                        <span style="color: var(--text-secondary);">Perfil QRZ</span>
+                                        <strong id="socio-profile-qrz" style="color: var(--text-primary);">-</strong>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 4px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 8px;">
+                                        <span style="color: var(--text-secondary);">Morada Registada</span>
+                                        <strong id="socio-profile-address" style="color: var(--text-primary); line-height: 1.5; margin-top: 2px;">-</strong>
+                                    </div>
+                                </div>
                             </div>
                             
-                            <div style="border-top: 1px solid var(--border-glass); margin-top: 10px; padding-top: 10px;">
-                                <span style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; display: block; margin-bottom: 8px; letter-spacing: 0.05em; font-weight: 600;">Consentimentos RGPD</span>
-                                <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.8rem;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                                        <span>E-mail Administrativo</span>
-                                        <span id="socio-profile-rgpd-email" style="font-weight: bold;">-</span>
+                            <!-- Sub-coluna 2: Consentimentos RGPD e Direitos -->
+                            <div>
+                                <h3 style="color: var(--text-primary); margin: 0 0 20px 0; font-size: 1.15rem; font-weight: 700; font-family: var(--font-heading); border-bottom: 1px solid var(--border-glass); padding-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: var(--accent-secondary);">🛡️</span> Consentimentos e RGPD
+                                </h3>
+                                
+                                <div style="display: flex; flex-direction: column; gap: 14px; font-size: 0.9rem; margin-bottom: 24px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 8px;">
+                                        <span style="color: var(--text-secondary);">E-mail Administrativo</span>
+                                        <span id="socio-profile-rgpd-email">-</span>
                                     </div>
-                                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                                        <span>Contacto SMS</span>
-                                        <span id="socio-profile-rgpd-sms" style="font-weight: bold;">-</span>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 8px;">
+                                        <span style="color: var(--text-secondary);">Contacto SMS</span>
+                                        <span id="socio-profile-rgpd-sms">-</span>
                                     </div>
-                                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                                        <span>Uso de Imagem/Vídeo</span>
-                                        <span id="socio-profile-rgpd-image" style="font-weight: bold;">-</span>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 8px;">
+                                        <span style="color: var(--text-secondary);">Uso de Imagem/Vídeo</span>
+                                        <span id="socio-profile-rgpd-image">-</span>
                                     </div>
-                                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                                        <span>Uso de Áudio/Rádio</span>
-                                        <span id="socio-profile-rgpd-audio" style="font-weight: bold;">-</span>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 8px;">
+                                        <span style="color: var(--text-secondary);">Uso de Áudio/Rádio</span>
+                                        <span id="socio-profile-rgpd-audio">-</span>
+                                    </div>
+                                </div>
+
+                                <!-- Direitos de Portabilidade / Esquecimento -->
+                                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-glass); border-radius: 8px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+                                    <h4 style="color: var(--text-primary); margin: 0; font-size: 0.95rem; font-weight: 600; font-family: var(--font-heading);">Os seus Direitos (RGPD)</h4>
+                                    <p style="color: var(--text-muted); font-size: 0.8rem; line-height: 1.4; margin: 0;">Pode exportar a sua ficha individual em formato PDF de portabilidade ou solicitar à direção a eliminação dos seus dados.</p>
+                                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px;">
+                                        <button id="socio-export-data-btn" class="btn btn-secondary" style="flex: 1; min-width: 140px; padding: 8px 12px; font-size: 0.78rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0; border-radius: 6px;">
+                                            📄 Exportar PDF
+                                        </button>
+                                        <button id="socio-delete-request-btn" class="btn btn-secondary" style="flex: 1; min-width: 140px; padding: 8px 12px; font-size: 0.78rem; cursor: pointer; border-color: var(--accent-danger); color: var(--accent-danger); display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0; background: transparent; border-radius: 6px;">
+                                            ⚠️ Solicitar Eliminação
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Card RGPD Direitos -->
-                    <div class="card" style="padding: 24px; display: flex; flex-direction: column; gap: 16px;">
-                        <h3 style="color: var(--accent-secondary); margin: 0; font-size: 1rem; font-weight: 700; border-bottom: 1px solid var(--border-glass); padding-bottom: 10px;">Direitos de Privacidade (RGPD)</h3>
-                        <p style="color: var(--text-muted); font-size: 0.8rem; line-height: 1.4; margin: 0;">Nos termos do regulamento nacional e do RGPD (Art. 17 e 20), pode exportar os seus dados pessoais registados no nosso sistema ou solicitar a sua eliminação permanente.</p>
+                    <!-- TAB 2: HISTÓRICO DE QUOTAS -->
+                    <div id="tab-quotas" class="socio-tab-content" style="display: none;">
+                        <h3 style="color: var(--text-primary); margin: 0 0 16px 0; font-size: 1.15rem; font-weight: 700; font-family: var(--font-heading); border-bottom: 1px solid var(--border-glass); padding-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                            <span style="color: var(--accent-primary);">💰</span> Histórico de Quotas e Recibos
+                        </h3>
                         
-                        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 5px;">
-                            <button id="socio-export-data-btn" class="btn btn-secondary" style="width: 100%; padding: 8px 12px; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0;">
-                                📄 Exportar Ficha de Dados (PDF)
-                            </button>
-                            <button id="socio-delete-request-btn" class="btn btn-secondary" style="width: 100%; padding: 8px 12px; font-size: 0.8rem; cursor: pointer; border-color: var(--accent-danger); color: var(--accent-danger); display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0; background: transparent;">
-                                ⚠️ Solicitar Eliminação de Ficha
-                            </button>
-                        </div>
-                    </div>
-                    
-                </div>
-
-                <!-- Coluna Direita: Quotas & Formulário -->
-                <div class="socio-dashboard-main">
-                    
-                    <!-- Histórico de Quotas e Recibos -->
-                    <div class="card" style="padding: 24px; display: flex; flex-direction: column; gap: 20px;">
-                        <h3 style="color: var(--accent-secondary); margin: 0; font-size: 1.15rem; font-weight: 700; border-bottom: 1px solid var(--border-glass); padding-bottom: 12px;">Histórico de Quotas e Recibos</h3>
-                        
-                        <div style="overflow-x: auto; width: 100%;">
+                        <div style="overflow-x: auto; width: 100%; border-radius: 8px; border: 1px solid var(--border-glass); background: rgba(0, 0, 0, 0.15);">
                             <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
                                 <thead>
-                                    <tr style="border-bottom: 1.5px solid var(--border-glass); color: var(--text-primary); font-weight: 700;">
-                                        <th style="padding: 12px 10px;">Ano</th>
-                                        <th style="padding: 12px 10px;">Valor</th>
-                                        <th style="padding: 12px 10px; text-align: center;">Estado</th>
-                                        <th style="padding: 12px 10px;">Pago em</th>
-                                        <th style="padding: 12px 10px; text-align: right; width: 160px;">Recibo</th>
+                                    <tr style="border-bottom: 1.5px solid var(--border-glass); background: rgba(255,255,255,0.02); color: var(--text-primary); font-weight: 700;">
+                                        <th style="padding: 14px 16px;">Ano</th>
+                                        <th style="padding: 14px 16px;">Valor</th>
+                                        <th style="padding: 14px 16px; text-align: center;">Estado</th>
+                                        <th style="padding: 14px 16px;">Pago em</th>
+                                        <th style="padding: 14px 16px; text-align: right; width: 180px;">Recibo</th>
                                     </tr>
                                 </thead>
                                 <tbody id="socio-quotas-table-body" style="color: var(--text-secondary);">
@@ -196,13 +216,15 @@
                         </div>
                     </div>
 
-                    <!-- Formulário de Atualização de Dados -->
-                    <div class="card" style="padding: 24px;">
-                        <h3 style="color: var(--text-primary); margin: 0 0 8px 0; font-size: 1.1rem; font-weight: 700;">Solicitar Atualização de Dados</h3>
+                    <!-- TAB 3: SOLICITAR ATUALIZAÇÃO -->
+                    <div id="tab-atualizar" class="socio-tab-content" style="display: none;">
+                        <h3 style="color: var(--text-primary); margin: 0 0 8px 0; font-size: 1.15rem; font-weight: 700; font-family: var(--font-heading); border-bottom: 1px solid var(--border-glass); padding-bottom: 8px;">
+                            📝 Solicitar Atualização de Dados
+                        </h3>
                         <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Atualize a informação da sua ficha de sócio nos campos abaixo. O seu pedido será submetido e ficará pendente de validação pela direção antes de ser definitivamente gravado.</p>
                         
-                        <form id="socio-update-form" style="display: flex; flex-direction: column; gap: 16px;">
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+                        <form id="socio-update-form" style="display: flex; flex-direction: column; gap: 20px;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
                                 <div style="display: flex; flex-direction: column; gap: 6px;">
                                     <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Telemóvel</label>
                                     <input type="text" id="socio-update-mobile" style="padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem;">
@@ -276,29 +298,29 @@
 
                             <!-- Consentimentos de Privacidade (RGPD) -->
                             <div style="border-top: 1px solid var(--border-glass); padding-top: 16px; margin-top: 8px;">
-                                <h4 style="color: var(--accent-secondary); font-size: 0.9rem; font-weight: 700; margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 0.05em;">Definições de Privacidade e RGPD</h4>
-                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+                                <h4 style="color: var(--accent-secondary); font-size: 0.95rem; font-weight: 700; margin: 0 0 16px 0; text-transform: uppercase; letter-spacing: 0.05em;">Definições de Privacidade e RGPD</h4>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
                                     <div style="display: flex; align-items: flex-start; gap: 10px;">
                                         <input type="checkbox" id="socio-update-rgpd-email" style="margin-top: 3px; cursor: pointer; width: 16px; height: 16px;">
-                                        <label for="socio-update-rgpd-email" style="font-size: 0.8rem; color: var(--text-secondary); cursor: pointer; line-height: 1.4;">
+                                        <label for="socio-update-rgpd-email" style="font-size: 0.85rem; color: var(--text-secondary); cursor: pointer; line-height: 1.4;">
                                             Autorizo contacto por <strong>E-mail</strong> para convocatórias, quotas e avisos.
                                         </label>
                                     </div>
                                     <div style="display: flex; align-items: flex-start; gap: 10px;">
                                         <input type="checkbox" id="socio-update-rgpd-sms" style="margin-top: 3px; cursor: pointer; width: 16px; height: 16px;">
-                                        <label for="socio-update-rgpd-sms" style="font-size: 0.8rem; color: var(--text-secondary); cursor: pointer; line-height: 1.4;">
+                                        <label for="socio-update-rgpd-sms" style="font-size: 0.85rem; color: var(--text-secondary); cursor: pointer; line-height: 1.4;">
                                             Autorizo contacto por <strong>SMS / Telemóvel</strong> para avisos de emergência.
                                         </label>
                                     </div>
                                     <div style="display: flex; align-items: flex-start; gap: 10px;">
                                         <input type="checkbox" id="socio-update-rgpd-image" style="margin-top: 3px; cursor: pointer; width: 16px; height: 16px;">
-                                        <label for="socio-update-rgpd-image" style="font-size: 0.8rem; color: var(--text-secondary); cursor: pointer; line-height: 1.4;">
+                                        <label for="socio-update-rgpd-image" style="font-size: 0.85rem; color: var(--text-secondary); cursor: pointer; line-height: 1.4;">
                                             Autorizo publicação de <strong>fotos/vídeos</strong> de eventos no site.
                                         </label>
                                     </div>
                                     <div style="display: flex; align-items: flex-start; gap: 10px;">
                                         <input type="checkbox" id="socio-update-rgpd-audio" style="margin-top: 3px; cursor: pointer; width: 16px; height: 16px;">
-                                        <label for="socio-update-rgpd-audio" style="font-size: 0.8rem; color: var(--text-secondary); cursor: pointer; line-height: 1.4;">
+                                        <label for="socio-update-rgpd-audio" style="font-size: 0.85rem; color: var(--text-secondary); cursor: pointer; line-height: 1.4;">
                                             Autorizo gravação de <strong>áudio / transmissões rádio</strong> em eventos da ARM.
                                         </label>
                                     </div>
@@ -307,8 +329,8 @@
 
                             <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 16px;">
                                 <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Foto de Perfil (Upload)</label>
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <img id="socio-update-photo-preview" src="assets/images/logo2-65x121.png" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-secondary); background: rgba(0,0,0,0.2);">
+                                <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                                    <img id="socio-update-photo-preview" src="assets/images/logo2-65x121.png" style="width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-secondary); background: rgba(0,0,0,0.2);">
                                     <input type="file" id="socio-update-photo-file" accept="image/*" style="display: none;">
                                     <button type="button" class="btn btn-secondary" onclick="document.getElementById('socio-update-photo-file').click()" style="padding: 8px 16px; font-size: 0.85rem; cursor: pointer; outline: none; margin: 0;">
                                         Alterar Foto 📷
@@ -318,7 +340,7 @@
                                 <input type="hidden" id="socio-update-photo">
                             </div>
                             <div style="display: flex; justify-content: flex-end;">
-                                <button type="submit" class="btn btn-primary" style="padding: 10px 24px; font-size: 0.9rem; cursor: pointer;">Submeter Pedido à Direção ✉️</button>
+                                <button type="submit" class="btn btn-primary" style="padding: 12px 28px; font-size: 0.95rem; cursor: pointer; font-weight: 600;">Submeter Pedido à Direção ✉️</button>
                             </div>
                         </form>
                     </div>

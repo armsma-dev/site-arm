@@ -4018,6 +4018,31 @@ window.initSocioPortal = function() {
 
     if (!loginCard || !dashboardArea) return;
 
+    // Gestão de Abas da Área do Sócio
+    const tabButtons = document.querySelectorAll('.socio-tab-btn');
+    const tabContents = document.querySelectorAll('.socio-tab-content');
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetTab = btn.getAttribute('data-tab');
+            
+            // Toggle abas ativas
+            tabButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Toggle painéis de conteúdo
+            tabContents.forEach(content => {
+                const isTarget = content.id === `tab-${targetTab}`;
+                if (isTarget) {
+                    content.style.display = 'block';
+                    content.classList.add('active-content');
+                } else {
+                    content.style.display = 'none';
+                    content.classList.remove('active-content');
+                }
+            });
+        });
+    });
+
     // Toggle login forms
     const toggleCredBtn = document.getElementById('toggle-socio-cred-login');
     const toggleGoogleBtn = document.getElementById('toggle-socio-google-login');
@@ -4491,6 +4516,15 @@ async function loadSocioDashboard(token) {
 
         loginCard.style.display = 'none';
         dashboardArea.style.display = 'flex';
+        
+        // Ativar a aba ativa por padrão no primeiro carregamento/atualização
+        const activeTabBtn = document.querySelector('.socio-tab-btn.active');
+        if (activeTabBtn) {
+            activeTabBtn.click();
+        } else {
+            const firstTab = document.querySelector('.socio-tab-btn[data-tab="ficha"]');
+            if (firstTab) firstTab.click();
+        }
     } catch (err) {
         console.error("Error loading member dashboard:", err);
     }
