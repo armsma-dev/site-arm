@@ -2,7 +2,7 @@
    LÓGICA JAVASCRIPT GLOBAL - ASSOCIAÇÃO DE RADIOAMADORES MARIENSES (ARM)
    ========================================================================== */
 
-const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE";
+const GOOGLE_CLIENT_ID = "325219816250-lbjrs3ragukosk58vv7t7p3gl1hhb1ig.apps.googleusercontent.com";
 
 // 1. GLOBAL INITIALIZATION (Runs once when index.html loads)
 document.addEventListener('DOMContentLoaded', () => {
