@@ -1489,3 +1489,138 @@ h1, h2, h3, h4, h5, h6 {
     border-bottom-color: var(--accent-primary) !important;
     background: rgba(255, 255, 255, 0.02) !important;
 }
+
+/* ==========================================================================
+   MELHORIAS RESPONSIVAS E ALINHAMENTO DE CAIXAS (RGPD & MOBILE)
+   ========================================================================== */
+
+/* Alinhamento uniforme das caixas/cartões nas grelhas */
+.grid-3 > .card, 
+.grid-2 > .card,
+.grid-2 > .widget-glow-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+/* Forçar primeiro filho (conteúdo) a esticar, empurrando o rodapé do cartão para a base */
+.grid-3 > .card > div:first-child, 
+.grid-2 > .card > div:first-child {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.board-grid-members > .member-profile-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Barra de Navegação Responsiva no Telemóvel */
+@media (max-width: 850px) {
+    .navbar-toggle {
+        display: flex !important;
+    }
+    
+    .navbar-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: rgba(11, 15, 25, 0.98);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--border-glass);
+        padding: 20px;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+        z-index: 1000;
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .navbar-menu.open {
+        display: flex !important;
+    }
+    
+    .navbar-item {
+        width: 100%;
+    }
+    
+    .navbar-link {
+        width: 100%;
+        padding: 10px 14px !important;
+        font-size: 1rem !important;
+        box-sizing: border-box;
+        margin-left: 0 !important; /* remover margens laterais no mobile */
+        margin-top: 4px;
+        text-align: left;
+    }
+    
+    /* Dropdowns embutidos (static) em mobile */
+    .navbar-dropdown {
+        position: static !important;
+        display: none !important;
+        min-width: 100% !important;
+        background: rgba(255, 255, 255, 0.02) !important;
+        border: none !important;
+        border-left: 2px solid var(--accent-primary) !important;
+        border-radius: 0 !important;
+        padding: 6px 0 6px 14px !important;
+        box-shadow: none !important;
+        margin-top: 4px;
+        flex-direction: column !important;
+        gap: 4px !important;
+        box-sizing: border-box;
+    }
+    
+    /* Mostrar dropdowns no clique/foco e hover no mobile */
+    .navbar-item:hover .navbar-dropdown,
+    .navbar-item:focus-within .navbar-dropdown {
+        display: flex !important;
+    }
+    
+    .navbar-dropdown-link {
+        padding: 6px 10px !important;
+        font-size: 0.92rem !important;
+    }
+    
+    .navbar-actions {
+        padding: 6px 14px;
+        justify-content: flex-start;
+    }
+    
+    /* Botões do Hero empilhados verticalmente no mobile */
+    .hero div[style*="display: flex"] {
+        flex-direction: column !important;
+        align-items: center !important;
+        width: 100% !important;
+        max-width: 290px !important;
+        margin: 0 auto !important;
+        gap: 12px !important;
+    }
+    
+    .hero .btn {
+        width: 100% !important;
+        text-align: center !important;
+        box-sizing: border-box !important;
+        padding: 12px 24px !important;
+    }
+}
+
+/* Estados Animados do Botão Hamburger (Toggle) */
+.navbar-toggle.active span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+.navbar-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+.navbar-toggle.active span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
